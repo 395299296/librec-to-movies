@@ -11,7 +11,7 @@
                     <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}"/>
                 </a>
             </li>
-            #{set count:count+1/}
+            #{set count:count+1 /}
             #{/list}
         </ul>
         <ul class="d_menu"></ul>
@@ -30,39 +30,24 @@
                 </li>
             </ul>
             <div id=menu_con>
-                <div class="tupian clear">
-                    #{list items:recent_list, as:'movie'}
-                    <a target="_blank" title="" href="/movies/${movie.movie_id}">
-                        <div class="tu-1">
-                            <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}">
-                        </div>
-                        <div class="tu-2 clear">
-                            <div class="tu-3">
-                                <p class="lan">${movie.title}</p>
+                <div id=view_list>
+                    <div class="tupian clear">
+                        #{list items:recent_list[0], as:'movie'}
+                        <a target="_blank" title="" href="/movies/${movie.movie_id}">
+                            <div class="tu-1">
+                                <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}">
                             </div>
-                            <div class="tu-4">
-                                <i>${movie.avg_rating}</i>
+                            <div class="tu-2 clear">
+                                <div class="tu-3">
+                                    <p class="lan">${movie.title}</p>
+                                </div>
+                                <div class="tu-4">
+                                    <i>${movie.avg_rating}</i>
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                    #{/list}
-                </div>
-                <div class="tupian clear" id="list1" style="display: none;">
-                    #{list items:recent_list, as:'movie'}
-                    <a target="_blank" title="" href="/movies/${movie.movie_id}">
-                        <div class="tu-1">
-                            <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}">
-                        </div>
-                        <div class="tu-2 clear">
-                            <div class="tu-3">
-                                <p class="lan">${movie.title}</p>
-                            </div>
-                            <div class="tu-4">
-                                <i>${movie.avg_rating}</i>
-                            </div>
-                        </div>
-                    </a>
-                    #{/list}
+                        </a>
+                        #{/list}
+                    </div>
                 </div>
                 <div class="jiazai">
                     <a id="btn_more" href="javascript:;">view more >></a>
@@ -103,10 +88,43 @@
             autoRollingTime:3000
         });
 
+        var counter = 0;
         $('#btn_more').click(function(){
-            $('#list1').css({'display': 'block'});
-            scroll(0,300);
+            counter++;
+            loadMoreMovies();
         });
+
+        function loadMoreMovies() {
+            var result = '<div class="tupian clear">';
+            #{set view_index:0 /}
+            for (var i = 0; i < counter; i++) {
+                #{set view_index:view_index+1 /}
+            }
+            if (counter < ${recent_list.size()}) {
+                #{list items:recent_list[view_index], as:'movie'}
+                    result += 
+                    '<a target="_blank" title="" href="/movies/${movie.movie_id}">' +
+                        '<div class="tu-1">' + 
+                            '<img src="/public/upload/${movie.title}.jpg" alt="${movie.title}">' +
+                        '</div>' +
+                        '<div class="tu-2 clear">' + 
+                            '<div class="tu-3">' + 
+                                '<p class="lan">${movie.title}</p>' + 
+                            '</div>' + 
+                            '<div class="tu-4">' + 
+                                '<i>${movie.avg_rating}</i>' + 
+                            '</div>' + 
+                        '</div>' +
+                    '</a>';
+                #{/list}
+                result += '</div>';
+                $('#view_list').append(result);
+                var y = window.scrollY;
+                scroll(y, y + 400);
+            } else {
+                $('#btn_more').hide();
+            }
+        }
     })
 </script>
 #{/set}

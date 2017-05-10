@@ -19,7 +19,7 @@ public class Application extends Controller {
     	else
     		recommend_list = RecommendMgr.getInstance().getFilterItemList(user_id);
         // show recent release movie list
-        List<Movie> recent_list = RecommendMgr.getInstance().getRecentReleaseList();
+        List<List<Movie>> recent_list = RecommendMgr.getInstance().getRecentReleaseList();
         // show score list top 10
         List<Movie> score_list = RecommendMgr.getInstance().getScoreTopList();
         

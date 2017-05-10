@@ -128,21 +128,24 @@ public class RecommendMgr {
         return movies;
 	}
 	
-	public List<Movie> getRecentReleaseList() {
+	public List<List<Movie>> getRecentReleaseList() {
         // sort by release time
 		Collections.sort(Movie.allMovies, new Comparator<Movie>() {
             public int compare(Movie m1, Movie m2) {
                 return m2.released_at.compareTo(m1.released_at);
             }
         });
+		List<List<Movie>> recent_list = new ArrayList<>();
 		List<Movie> movies = new ArrayList<>();
     	for (Movie movie:Movie.allMovies) {
-    		if (movies.size() >= 5)
-    			break;
     		movies.add(movie);
+    		if (movies.size() == 5) {
+    			recent_list.add(movies);
+    			movies = new ArrayList<>();
+    		}
     	}
     	
-    	return movies;
+    	return recent_list;
 	}
 	
 	public List<Movie> getScoreTopList() {
