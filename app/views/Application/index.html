@@ -1,4 +1,112 @@
 #{extends 'main.html' /}
 #{set title:'Home' /}
 
-#{welcome /}
+<div class="banner">
+    <div id="d_tab29">
+        <ul class="d_img">
+            #{set count:1/}
+            #{list items:recommend_list, as:'movie'}
+            <li class="d_pos${count}">
+                <a target="_blank" title="${movie.title}" href="/movies/${movie.movie_id}">
+                    <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}"/>
+                </a>
+            </li>
+            #{set count:count+1/}
+            #{/list}
+        </ul>
+        <ul class="d_menu"></ul>
+        <p class="d_prev"></p>
+        <p class="d_next"></p>
+    </div>
+</div>
+<div class="wrapper">
+    <div class="left clear">
+        <div id=menu>
+            <ul id=nav>
+                <li>
+                    <a class=nav_on>
+                        <span>Recent Release Movies</span>
+                    </a>
+                </li>
+            </ul>
+            <div id=menu_con>
+                <div class="tupian clear">
+                    #{list items:recent_list, as:'movie'}
+                    <a target="_blank" title="" href="/movies/${movie.movie_id}">
+                        <div class="tu-1">
+                            <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}">
+                        </div>
+                        <div class="tu-2 clear">
+                            <div class="tu-3">
+                                <p class="lan">${movie.title}</p>
+                            </div>
+                            <div class="tu-4">
+                                <i>${movie.avg_rating}</i>
+                            </div>
+                        </div>
+                    </a>
+                    #{/list}
+                </div>
+                <div class="tupian clear" id="list1" style="display: none;">
+                    #{list items:recent_list, as:'movie'}
+                    <a target="_blank" title="" href="/movies/${movie.movie_id}">
+                        <div class="tu-1">
+                            <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}">
+                        </div>
+                        <div class="tu-2 clear">
+                            <div class="tu-3">
+                                <p class="lan">${movie.title}</p>
+                            </div>
+                            <div class="tu-4">
+                                <i>${movie.avg_rating}</i>
+                            </div>
+                        </div>
+                    </a>
+                    #{/list}
+                </div>
+                <div class="jiazai">
+                    <a id="btn_more" href="javascript:;">view more >></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="right">
+        <div class="bang">
+            <div class="hd">Score list Top10</div>
+            <div class="tt-1"></div>
+            <div class="lie-1">
+                <ul>
+                    #{list items:score_list, as:'movie'}
+                    <li>
+                        <a target='_blank' href="/movies/${movie.movie_id}" title="${movie.title}">${movie.title}</a>
+                        <span>
+                            <i>
+                                <img src="@{'/public/images/hong.gif'}" alt="">
+                            </i>
+                            <em>0</em>
+                        </span>
+                    </li>
+                    #{/list}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+#{set 'moreScripts'}
+<script src="@{'/public/javascripts/jquery.DB_rotateRollingBanner.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#d_tab29').DB_rotateRollingBanner({
+            key:"c37080",
+            moveSpeed:300,
+            autoRollingTime:3000
+        });
+
+        $('#btn_more').click(function(){
+            $('#list1').css({'display': 'block'});
+            scroll(0,300);
+        });
+    })
+</script>
+#{/set}
