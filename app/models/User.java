@@ -51,8 +51,8 @@ public class User extends Model {
 		return null;
 	}
 	
-	public User	addMovie(Movie movie, Double score) {
-		MovieScore ms = new MovieScore(movie, score);
+	public User	addMovie(Movie movie, Double score, Double datetime) {
+		MovieScore ms = new MovieScore(movie, score, datetime);
 		this.ratings.add(ms);
 		return this;
 	}
@@ -66,7 +66,7 @@ public class User extends Model {
 		return null;
 	}
 	
-	public int setUserRating(Long movie_id, Double score) {
+	public int setUserRating(Long movie_id, Double score, Double datetime) {
 		// Check to see if a rating is in the database.
 		for (MovieScore ms:ratings) {
 			if (ms.movie.movie_id.equals(movie_id)) {
@@ -74,10 +74,10 @@ public class User extends Model {
 				return 0;
 			}
 		}
-		Movie movie = Movie.getMovie(movie_id);
-		movie.setUserRating(this.user_id, score);
+		MovieEx movie = (MovieEx) MovieEx.getMovie(movie_id);
+		movie.setUserRating(this.user_id, score, datetime);
 		movie.calcAvgRating();
-		addMovie(movie, score);
+		addMovie(movie, score, datetime);
 		return 1;
 	}
 }

@@ -10,9 +10,7 @@ import com.google.common.collect.*;
 
 import common.Util;
 import manage.RecommendMgr;
-import models.Movie;
-import models.Rating;
-import models.User;
+import models.*;
 import net.librec.common.LibrecException;
 import net.librec.conf.Configuration;
 import net.librec.data.convertor.TextDataConvertor;
@@ -35,7 +33,7 @@ public class Bootstrap extends Job {
 		
 		// initialize recommend system
 		start = System.currentTimeMillis();
-		// RecommendMgr.getInstance().init();
+		RecommendMgr.getInstance().init();
 		end = System.currentTimeMillis();
         LOG.info( "Init recommender costs " + (end - start) + " milliseconds" );
 		
@@ -51,18 +49,18 @@ public class Bootstrap extends Job {
 		int numRows = arffList.size();
 		for (int row = 0; row < numRows; row++) {
             ArffInstance instance = arffList.get(row);
-            Movie movie = new Movie(((Double)instance.getValueByAttrName("movie_id")).longValue(), 
+            MovieEx movie = new MovieEx(((Double)instance.getValueByAttrName("movie_id")).longValue(), 
             						(String)instance.getValueByAttrName("title"), 
             						(String)instance.getValueByAttrName("released_str"), 
-            						(String)instance.getValueByAttrName("imdb_url"));
+            						(String)instance.getValueByAttrName("imdb_url"),
+            						(String)instance.getValueByAttrName("summary"),
+            						(String)instance.getValueByAttrName("subtext"));
             // movie.save();
-            Movie.allMovies.add(movie);
+            MovieEx.allMovies.add(movie);
 		}
 		end = System.currentTimeMillis();
         LOG.info( "Load movie set costs " + (end - start) + " milliseconds" );
 		
-        if (true) return;
-        
 		// load user set
         start = System.currentTimeMillis();
 		try {
@@ -92,22 +90,29 @@ public class Bootstrap extends Job {
 		Table<Integer, Integer, Double> dataTable = preference.getDataTable();
 		BiMap<String, Integer> userIds = dataModel.getUserMappingData();
 		BiMap<String, Integer> itemIds = dataModel.getItemMappingData();
+		SparseMatrix dateTimeDataSet = (SparseMatrix) dataModel.getDatetimeDataSet();
+		Table<Integer, Integer, Double> dateTimeTable = dateTimeDataSet.getDataTable();
 		for (Map.Entry<String, Integer> userId : userIds.entrySet()) {
 			for (Map.Entry<String, Integer> itemId : itemIds.entrySet()) {
-				Object value = dataTable.get(userId.getValue(), itemId.getValue());
-				if (value != null) {
+				Object scValue = dataTable.get(userId.getValue(), itemId.getValue());
+				Object dtValue = dateTimeTable.get(userId.getValue(), itemId.getValue());
+				if (scValue != null && dtValue != null) {
 					Long user_id = Long.parseLong(userId.getKey());
 					Long movie_id = Long.parseLong(itemId.getKey());
-					Double score = (Double)value;
+					Double score = (Double)scValue;
+					Double datetime = (Double)dtValue;
 					Rating rating = new Rating(user_id, movie_id, score);
-					User user = User.getUser(user_id);
-					Movie movie = Movie.getMovie(movie_id);
+					User user = User.findUser(user_id);
+					if (user == null) continue;
+					MovieEx movie = (MovieEx) MovieEx.findMovie(movie_id);
+					if (movie == null) continue;
 					try {
-						user.addMovie(movie, score);
-						movie.addUser(user, score);
+						user.addMovie(movie, score, datetime);
+						movie.addUser(user, score, datetime);
 					} catch (Exception e) {
 						// TODO: handle exception
 						e.printStackTrace();
+						throw new LibrecException("load rating set error");
 					}
 					//rating.save();
 					Rating.allRatings.add(rating);
@@ -115,7 +120,7 @@ public class Bootstrap extends Job {
 			}
 		}
 		for (Movie movie:Movie.allMovies) {
-			movie.calcAvgRating();
+			((MovieEx) movie).calcAvgRating();
 		}
 		end = System.currentTimeMillis();
         LOG.info( "Load rating set costs " + (end - start) + " milliseconds" );

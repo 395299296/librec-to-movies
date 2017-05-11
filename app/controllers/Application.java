@@ -19,7 +19,7 @@ public class Application extends Controller {
     	else
     		recommend_list = RecommendMgr.getInstance().getFilterItemList(user_id);
         // show recent release movie list
-        List<List<Movie>> recent_list = RecommendMgr.getInstance().getRecentReleaseList();
+        List<Movie> recent_list = RecommendMgr.getInstance().getRecentReleaseList(0);
         // show score list top 10
         List<Movie> score_list = RecommendMgr.getInstance().getScoreTopList();
         
@@ -75,17 +75,6 @@ public class Application extends Controller {
      */
     public static void show_movie(Long movie_id) {
     	Movie movie = Movie.getMovie(movie_id);
-    	Collections.sort(movie.ratings, new Comparator<UserScore>() {
-            public int compare(UserScore m1, UserScore m2) {
-                return m1.user.user_id.compareTo(m2.user.user_id);
-            }
-        });
-    	Double totalScore = 0.0;
-    	for (UserScore us:movie.ratings) {
-    		totalScore += us.score;
-    	}
-    	// Get average rating of movie
-    	Double average = totalScore / movie.ratings.size();
     	User current_user = null;
     	MovieScore user_rating = null;
     	String user_id = session.get("user_id");
@@ -93,7 +82,44 @@ public class Application extends Controller {
     		current_user = User.getUser(Long.parseLong(user_id));
     		user_rating = current_user.getUserRating(movie_id);
     	}
-        render("@movie_detail", movie, average, current_user, user_rating);
+    	// show recommended movie list
+    	List<Movie> recommend_list = RecommendMgr.getInstance().getFilterUserList(user_id, movie_id.toString());
+        // show recent score movie list top 8
+    	List<Movie> hot_list = RecommendMgr.getInstance().getHotTopList();
+    	
+        render("@movie_detail", movie, current_user, user_rating, recommend_list, hot_list);
+    }
+    
+    /*
+     * Show more movies by click view button times
+     */
+    public static void show_more_movies(int index) {
+    	List<Movie> recent_list = RecommendMgr.getInstance().getRecentReleaseList(index);
+    	renderJSON(recent_list);
+	}
+    
+    /*
+     * To a particular movie score
+     */
+    public static void add_new_rating(Long movie_id, Double new_rating) {
+    	String user_id = session.get("user_id");
+        if (user_id == null) {
+            flash("message", "Hey! You're not even signed in!!!");
+        } else {
+	    	User current_user = User.getUser(Long.parseLong(user_id));
+	    	Long datetime = System.currentTimeMillis();
+	    	int result = current_user.setUserRating(movie_id, new_rating, (double)datetime);
+	    	switch (result) {
+			case 0:
+				flash("message", "Your rating was submitted.");
+				break;
+			case 1:
+				flash("message", "Rating added.");
+			default:
+				break;
+			}
+        }
+    	redirect("/movies/" + movie_id);
     }
 
 }

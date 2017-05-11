@@ -89,8 +89,6 @@ public class Util {
     public static void dataReader(Reader rd, ArrayList<String> attrTypes, ArrayList<ArffInstance> instances) throws IOException {
         ArrayList<String> dataLine = new ArrayList<>();
         StringBuilder subString = new StringBuilder();
-        boolean isInQuote = false;
-        boolean isInBracket = false;
 
         int c = 0;
         while ((c = rd.read()) != -1) {
@@ -118,13 +116,7 @@ public class Util {
                         dataLine = new ArrayList<>();
                     }
                 }
-            } else if (ch == '[' || ch == ']') {
-                isInBracket = !isInBracket;
-            } else if (ch == '\r') {
-                // skip '\r'
-            } else if (ch == '\"') {
-                isInQuote = !isInQuote;
-            } else if (ch == ',' && (!isInQuote && !isInBracket)) {
+            } else if (ch == '|') {
                 dataLine.add(subString.toString());
                 subString = new StringBuilder();
             } else {

@@ -8,9 +8,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import models.Movie;
+import models.*;
 import net.librec.common.LibrecException;
 import net.librec.conf.Configuration;
+import net.librec.data.DataModel;
 import net.librec.data.model.TextDataModel;
 import net.librec.eval.RecommenderEvaluator;
 import net.librec.eval.rating.RMSEEvaluator;
@@ -18,6 +19,7 @@ import net.librec.filter.GenericRecommendedFilter;
 import net.librec.recommender.Recommender;
 import net.librec.recommender.RecommenderContext;
 import net.librec.recommender.cf.ItemKNNRecommender;
+import net.librec.recommender.cf.UserKNNRecommender;
 import net.librec.recommender.item.RecommendedItem;
 import net.librec.similarity.PCCSimilarity;
 import net.librec.similarity.RecommenderSimilarity;
@@ -28,7 +30,8 @@ public class RecommendMgr {
 	
     private static RecommendMgr instance;
     
-    private Recommender recommender;
+    private Recommender itemRecommender;
+    private Recommender userRecommender;
     private TextDataModel dataModel;
     
     private RecommendMgr () {
@@ -53,6 +56,7 @@ public class RecommendMgr {
 		Configuration conf = new Configuration();
         conf.set("dfs.data.dir", "data");
         conf.set("data.input.path", "u.data");
+        conf.set("data.column.format", "UIRT");
 		dataModel = new TextDataModel(conf);
         try {
 			dataModel.buildDataModel();
@@ -60,19 +64,28 @@ public class RecommendMgr {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        
-        // build recommender context
-        RecommenderContext context = new RecommenderContext(conf, dataModel);
 
-        // build similarity
+        // build item recommender
+        LOG.info("build item recommender");
         conf.set("rec.recommender.similarity.key" ,"item");
-        RecommenderSimilarity similarity = new PCCSimilarity();
+        itemRecommender = new ItemKNNRecommender();
+        buildRecommender(itemRecommender, conf);
+        
+        // build user recommender
+        LOG.info("build user recommender");
+        conf.set("rec.recommender.similarity.key" ,"user");
+        conf.set("rec.neighbors.knn.number", "50");
+        userRecommender = new UserKNNRecommender();
+        buildRecommender(userRecommender, conf);
+	}
+	
+	public void buildRecommender(Recommender recommender, Configuration conf) {
+		// build item similarity
+		RecommenderSimilarity similarity = new PCCSimilarity();
         similarity.buildSimilarityMatrix(dataModel);
-        context.setSimilarity(similarity);
-
-        // build recommender
-        recommender = new ItemKNNRecommender();
-        recommender.setContext(context);
+        
+		 // build recommender context
+        RecommenderContext context = new RecommenderContext(conf, dataModel, similarity);
 
         // run recommender algorithm
         try {
@@ -90,6 +103,7 @@ public class RecommendMgr {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 	
 	public List<Movie> getDefaultItemList() {
@@ -109,7 +123,7 @@ public class RecommendMgr {
 	
 	public List<Movie> getFilterItemList(String user_id) {
         // filter the recommended result
-        List<RecommendedItem> recommendedItemList = recommender.getRecommendedList();
+        List<RecommendedItem> recommendedItemList = itemRecommender.getRecommendedList();
         GenericRecommendedFilter filter = new GenericRecommendedFilter();
         List<String> userIdList = new ArrayList<>();
         userIdList.add(user_id);
@@ -128,27 +142,55 @@ public class RecommendMgr {
         return movies;
 	}
 	
-	public List<List<Movie>> getRecentReleaseList() {
+	public List<Movie> getFilterUserList(String user_id, String item_id) {
+        // filter the recommended result
+        List<RecommendedItem> recommendedItemList = userRecommender.getRecommendedList();
+        GenericRecommendedFilter filter = new GenericRecommendedFilter();
+        List<String> userIdList = new ArrayList<>();
+        if (user_id != null) {
+        	userIdList.add(user_id);
+        	filter.setUserIdList(userIdList);
+        	recommendedItemList = filter.filter(recommendedItemList);
+        }
+        
+        List<Movie> movies = new ArrayList<>();
+        for (RecommendedItem item:recommendedItemList) {
+        	if (movies.size() >= 8)
+    			break;
+        	if (item.getItemId() == item_id) continue;
+        	Long movie_id = Long.parseLong(item.getItemId());
+        	Movie movie = Movie.getMovie(movie_id);
+        	movies.add(movie);
+        }
+        
+        return movies;
+	}
+	
+	public List<Movie> getRecentReleaseList(int page) {
         // sort by release time
-		Collections.sort(Movie.allMovies, new Comparator<Movie>() {
+		Collections.sort(MovieEx.allMovies, new Comparator<Movie>() {
             public int compare(Movie m1, Movie m2) {
                 return m2.released_at.compareTo(m1.released_at);
             }
         });
-		List<List<Movie>> recent_list = new ArrayList<>();
 		List<Movie> movies = new ArrayList<>();
-    	for (Movie movie:Movie.allMovies) {
-    		movies.add(movie);
-    		if (movies.size() == 5) {
-    			recent_list.add(movies);
-    			movies = new ArrayList<>();
-    		}
+		int start = page * 5;
+		if (start < 0)
+			return movies;
+		
+		int end = (page + 1) * 5;
+		if (end >= MovieEx.allMovies.size())
+			end = Movie.allMovies.size();
+		
+    	for (int i = start; i < end; i++) {
+    		movies.add(Movie.allMovies.get(i).clone());
     	}
     	
-    	return recent_list;
+    	return movies;
 	}
 	
 	public List<Movie> getScoreTopList() {
+		// sort by average rating value
 		Collections.sort(Movie.allMovies, new Comparator<Movie>() {
             public int compare(Movie m1, Movie m2) {
                 return m2.avg_rating.compareTo(m1.avg_rating);
@@ -157,6 +199,22 @@ public class RecommendMgr {
 		List<Movie> movies = new ArrayList<>();
     	for (Movie movie:Movie.allMovies) {
     		if (movies.size() >= 10)
+    			break;
+    		movies.add(movie);
+    	}
+    	return movies;
+	}
+	
+	public List<Movie> getHotTopList() {
+		// sort by average score date time value
+		Collections.sort(Movie.allMovies, new Comparator<Movie>() {
+            public int compare(Movie m1, Movie m2) {
+                return m2.avg_datetime.compareTo(m1.avg_datetime);
+            }
+        });
+		List<Movie> movies = new ArrayList<>();
+    	for (Movie movie:Movie.allMovies) {
+    		if (movies.size() >= 8)
     			break;
     		movies.add(movie);
     	}
