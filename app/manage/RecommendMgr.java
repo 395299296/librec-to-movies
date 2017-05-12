@@ -20,6 +20,7 @@ import net.librec.recommender.Recommender;
 import net.librec.recommender.RecommenderContext;
 import net.librec.recommender.cf.ItemKNNRecommender;
 import net.librec.recommender.cf.UserKNNRecommender;
+import net.librec.recommender.cf.rating.PMFRecommender;
 import net.librec.recommender.item.RecommendedItem;
 import net.librec.similarity.PCCSimilarity;
 import net.librec.similarity.RecommenderSimilarity;
@@ -32,6 +33,7 @@ public class RecommendMgr {
     
     private Recommender itemRecommender;
     private Recommender userRecommender;
+    private Recommender ratingRecommender;
     private TextDataModel dataModel;
     
     private RecommendMgr () {
@@ -77,6 +79,11 @@ public class RecommendMgr {
         conf.set("rec.neighbors.knn.number", "50");
         userRecommender = new UserKNNRecommender();
         buildRecommender(userRecommender, conf);
+        
+        // build rating recommender
+        LOG.info("build rating recommender");
+        ratingRecommender = new PMFRecommender();
+        buildRecommender(ratingRecommender, conf);
 	}
 	
 	public void buildRecommender(Recommender recommender, Configuration conf) {
@@ -88,13 +95,16 @@ public class RecommendMgr {
         RecommenderContext context = new RecommenderContext(conf, dataModel, similarity);
 
         // run recommender algorithm
+		long start = System.currentTimeMillis();
         try {
 			recommender.recommend(context);
 		} catch (LibrecException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		long end = System.currentTimeMillis();
+        LOG.info( "Build recommender costs " + (end - start) + " milliseconds" );
+        
         // evaluate the recommended result
         RecommenderEvaluator evaluator = new RMSEEvaluator();
         try {
@@ -144,7 +154,7 @@ public class RecommendMgr {
 	
 	public Double predictUserItemRating(String user_id, String item_id) {
         // filter the recommended result
-        List<RecommendedItem> recommendedItemList = itemRecommender.getRecommendedList();
+        List<RecommendedItem> recommendedItemList = ratingRecommender.getRecommendedList();
         for (RecommendedItem item:recommendedItemList) {
         	if (item.getUserId().equals(user_id) && item.getItemId().equals(item_id)) {
         		return item.getValue();

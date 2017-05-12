@@ -106,8 +106,8 @@ textarea{font-family:Tahoma,Arial;color:#000;height:100px;width:99%}
 .fk-2 img{width:190px;height:280px}
 .fk-2-1{margin-top:10px}
 .fk-3{width:560px;float:right;height:300px;overflow:hidden;padding-left:20px}
-.fk-3 .hdd{height:40px;margin:10px 0}
-.fk-3 .hdd h3{float:left;font-size:30px;color:#000;height:40px;width:460px;overflow:hidden}
+.fk-3 .hdd{height:60px;margin:10px 0}
+.fk-3 .hdd h3{float:left;font-size:30px;color:#000;height:60px;width:460px;overflow:hidden}
 .fk-3 .hdd span{float:right;padding-right:20px}
 .fk-3 .hdd span i{color:#c0485b;font-size:24px}
 .fk-3 .hdd span a{border:1px solid #ddd;color:#126cb3;float:left;display:block;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;padding:10px 20px;margin-right:10px;font-size:20px}
