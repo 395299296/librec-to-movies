@@ -117,6 +117,8 @@ public class Application extends Controller {
 		    	User current_user = User.getUser(Long.parseLong(user_id));
 		    	Long datetime = System.currentTimeMillis();
 		    	int result = current_user.setUserRating(movie_id, new_rating, (double)datetime);
+		    	MovieEx movie = (MovieEx) MovieEx.getMovie(movie_id);
+		    	movie.calcAvgRating();
 		    	switch (result) {
 				case 0:
 					flash("message", "Your rating was submitted.");

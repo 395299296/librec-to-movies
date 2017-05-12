@@ -76,7 +76,6 @@ public class User extends Model {
 		}
 		MovieEx movie = (MovieEx) MovieEx.getMovie(movie_id);
 		movie.setUserRating(this.user_id, score, datetime);
-		movie.calcAvgRating();
 		addMovie(movie, score, datetime);
 		return 1;
 	}

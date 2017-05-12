@@ -190,7 +190,7 @@ public class RecommendMgr {
 	
 	public List<Movie> getRecentReleaseList(int page) {
         // sort by release time
-		Collections.sort(MovieEx.allMovies, new Comparator<Movie>() {
+		Collections.sort(Movie.allMovies, new Comparator<Movie>() {
             public int compare(Movie m1, Movie m2) {
                 return m2.released_at.compareTo(m1.released_at);
             }
@@ -201,7 +201,7 @@ public class RecommendMgr {
 			return movies;
 		
 		int end = (page + 1) * 5;
-		if (end >= MovieEx.allMovies.size())
+		if (end >= Movie.allMovies.size())
 			end = Movie.allMovies.size();
 		
     	for (int i = start; i < end; i++) {
