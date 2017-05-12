@@ -57,9 +57,9 @@
                     </div>
                     <div class="score">
                         <form action="/new_rating" method="POST">
-                            <input class="text" type="number" min="1" max="5" name="new_rating" placeholder="1-5"> 
+                            <input class="text" type="number" id="text_rating" min="1" max="5" name="new_rating" placeholder="1-5"> 
                             <input class="text" type="hidden" name="movie_id" value="${movie.movie_id}">
-                            <input class="btn" type="submit" value="Submit">
+                            <input class="btn" type="submit" id="btn_sub" value="Submit">
                         </form>
                     </div>
                 </div>
@@ -105,3 +105,40 @@
         </div>
     </div>
 </div>
+
+#{set 'moreScripts'}
+<script type="text/javascript">
+    $(function(){
+        if(!placeholderSupport()){
+            $('[placeholder]').focus(function() {
+                var input = $(this);
+                if (input.val() == input.attr('placeholder')) {
+                    input.val('');
+                    input.removeClass('placeholder');
+                }
+            }).blur(function() {
+                var input = $(this);
+                if (input.val() == '' || input.val() == input.attr('placeholder')) {
+                    input.addClass('placeholder');
+                    input.val(input.attr('placeholder'));
+                }
+            }).blur();
+
+            $("#btn_sub").click(function(){
+                var value = $("#text_rating").val();
+                if(isNaN(value)){
+                    alert("please input 1-5 number");
+                    return false;
+                }
+                if(value <= 0 || value > 5){
+                    alert("please input 1~5 number");
+                    return false;   
+                }
+            });
+        };
+    })
+    function placeholderSupport() {
+        return 'placeholder' in document.createElement('input');
+    }
+</script>
+#{/set}

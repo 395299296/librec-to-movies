@@ -102,23 +102,27 @@ public class Application extends Controller {
      * To a particular movie score
      */
     public static void add_new_rating(Long movie_id, Double new_rating) {
-    	String user_id = session.get("user_id");
-        if (user_id == null) {
-            flash("message", "Hey! You're not even signed in!!!");
-        } else {
-	    	User current_user = User.getUser(Long.parseLong(user_id));
-	    	Long datetime = System.currentTimeMillis();
-	    	int result = current_user.setUserRating(movie_id, new_rating, (double)datetime);
-	    	switch (result) {
-			case 0:
-				flash("message", "Your rating was submitted.");
-				break;
-			case 1:
-				flash("message", "Rating added.");
-			default:
-				break;
-			}
-        }
+    	if (new_rating == null) {
+            flash("message", "Please input 1-5 number!!!");
+    	} else {
+	    	String user_id = session.get("user_id");
+	        if (user_id == null) {
+	            flash("message", "Hey! You're not even signed in!!!");
+	        } else {
+		    	User current_user = User.getUser(Long.parseLong(user_id));
+		    	Long datetime = System.currentTimeMillis();
+		    	int result = current_user.setUserRating(movie_id, new_rating, (double)datetime);
+		    	switch (result) {
+				case 0:
+					flash("message", "Your rating was submitted.");
+					break;
+				case 1:
+					flash("message", "Rating added.");
+				default:
+					break;
+				}
+	        }
+    	}
     	redirect("/movies/" + movie_id);
     }
 
