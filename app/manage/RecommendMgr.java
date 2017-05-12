@@ -142,6 +142,18 @@ public class RecommendMgr {
         return movies;
 	}
 	
+	public Double predictUserItemRating(String user_id, String item_id) {
+        // filter the recommended result
+        List<RecommendedItem> recommendedItemList = itemRecommender.getRecommendedList();
+        for (RecommendedItem item:recommendedItemList) {
+        	if (item.getUserId().equals(user_id) && item.getItemId().equals(item_id)) {
+        		return item.getValue();
+        	}
+        }
+        
+        return 0.0;
+	}
+	
 	public List<Movie> getFilterUserList(String user_id, String item_id) {
         // filter the recommended result
         List<RecommendedItem> recommendedItemList = userRecommender.getRecommendedList();

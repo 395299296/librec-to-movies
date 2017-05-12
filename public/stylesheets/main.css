@@ -83,7 +83,7 @@ textarea{font-family:Tahoma,Arial;color:#000;height:100px;width:99%}
 .lie-1 ul li span{float:right;color:#75bf26}
 .lie-1 ul li span em{color:#c14c5e}
 .lie-1 ul li span i{padding:0 5px}
-.login{padding-top:30px;}
+.login{padding-top:30px; height:640px;}
 .login .hd{height:40px;line-height:40px;border-bottom:1px solid #ddd}
 .login .hd h3{float:left;height:37px;line-height:37px;font-size:28px;color:#181818;border-bottom:3px solid #000;padding-left:5px}
 .tian{height:50px;line-height:50px;margin-top:125px;padding-left:130px}
@@ -141,8 +141,20 @@ textarea{font-family:Tahoma,Arial;color:#000;height:100px;width:99%}
 .luo .hdd-1{height:40px;line-height:40px;border-bottom:1px solid #ddd}
 .luo .hdd-1 h3{width:150px;height:37px;text-align:left;color:#126cb3;border-bottom:3px solid #126cb3;font-size:20px;float:left}
 .luo .hdd-1 a{color:#000;font-size:22px;padding-left:5px}
-.rating{text-align:left;height:40px;margin:0 auto;width:100%;padding-top:50px}
+.rating{text-align:left;margin:0 auto;width:100%;padding-top:50px}
 .score{text-align:center;padding-top:10px;}
 .score .text{color:#757575;background:#fff;width:100px;font-size:16px;height:25px;}
 .score .btn{color:#fff;background:#00a0e9;width:150px;font-size:18px;height:35px;}
 .score input{line-height:30px;-moz-border-radius:4px;-webkit-border-radius:4px;border-radius:4px;display:block}
+.footer{width:100%;background:#4e4e4e;padding:20px 0;margin-top:50px}
+.foot{width:1220px;margin:0 auto}
+.dao-1{width:120px;float:left;overflow:hidden;margin-right:120px}
+.dao{height:30px;line-height:30px;font-size:18px;color:#fff}
+.dao-1 ul li{height:25px;line-height:25px}
+.dao-1 ul li a{color:#b0b0b0;font-size:15px}
+.dao-3{width:360px;float:left;overflow:hidden;font-size:18px;margin-right:120px}
+.dao{height:30px;line-height:30px;font-size:15px;color:#fff}
+.dao-2{color:#b0b0b0;font-size:15px}
+.gw{width:127px;float:left;margin-right:50px}
+.gw img{width:127px;height:127px}
+.gw p{color:#fff;line-height:35px;text-align:center}

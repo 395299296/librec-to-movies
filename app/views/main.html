@@ -32,6 +32,41 @@
             </div>
             <!--header结束-->
             #{doLayout /}
+            <div class="footer clear">
+                <div class="foot">
+                    <div class="dao-1">
+                        <div class="dao">Friendly link</div>
+                        <ul>
+                            <li>
+                                <a target="_blank" href="http://www.librec.net/" tppabs="http://www.librec.net/">LibRec</a>
+                            </li>
+                            <li>
+                                <a target='_blank' href="https://www.playframework.com/" tppabs="https://www.playframework.com/">play framework</a>
+                            </li>
+                            <li>
+                                <a target="_blank" href="http://www.imdb.com/" tppabs="http://www.imdb.com/">IMDB - Movies</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="dao-3">
+                        <div class="dao">On site</div>
+                        <div class="dao-2">This site based on LibRec open source library user-item recommended algorithm to generate display content, more attention to <a target="_blank" href="http://www.librec.net/" tppabs="http://www.librec.net/">LibRec official website</a></div>
+                    </div>
+                    <div class="gw">
+                        <a href="http://weibo.com/guoguibing">
+                            <img src="@{'public/images/weibo.png'}" tppabs="http://weibo.com/guoguibing" alt="">
+                        </a>
+                        <p>Weibo</p>
+                    </div>
+                    <div class="gw">
+                        <a href="#">
+                            <img src="@{'public/images/mp.jpg'}">
+                        </a>
+                        <p>WeChat</p>
+                    </div>
+                </div>
+            </div>
+            <!--footer结束-->
         </div>
         <script src="@{'/public/javascripts/jquery-1.8.3.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         #{get 'moreScripts' /}

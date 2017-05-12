@@ -3,6 +3,7 @@ package controllers;
 import play.*;
 import play.mvc.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import manage.RecommendMgr;
@@ -77,17 +78,21 @@ public class Application extends Controller {
     	Movie movie = Movie.getMovie(movie_id);
     	User current_user = null;
     	MovieScore user_rating = null;
+    	Double prediction = null;
     	String user_id = session.get("user_id");
     	if (user_id != null) {
     		current_user = User.getUser(Long.parseLong(user_id));
     		user_rating = current_user.getUserRating(movie_id);
+    		prediction = RecommendMgr.getInstance().predictUserItemRating(user_id, movie_id.toString());
+    		BigDecimal bg = new BigDecimal(prediction);
+			prediction = bg.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
     	}
     	// show recommended movie list
     	List<Movie> recommend_list = RecommendMgr.getInstance().getFilterUserList(user_id, movie_id.toString());
         // show recent score movie list top 8
     	List<Movie> hot_list = RecommendMgr.getInstance().getHotTopList();
     	
-        render("@movie_detail", movie, current_user, user_rating, recommend_list, hot_list);
+        render("@movie_detail", movie, current_user, user_rating, prediction, recommend_list, hot_list);
     }
     
     /*
