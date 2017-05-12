@@ -157,7 +157,7 @@ public class RecommendMgr {
         for (RecommendedItem item:recommendedItemList) {
         	if (movies.size() >= 8)
     			break;
-        	if (item.getItemId() == item_id) continue;
+        	if (item.getItemId().equals(item_id)) continue;
         	Long movie_id = Long.parseLong(item.getItemId());
         	Movie movie = Movie.getMovie(movie_id);
         	movies.add(movie);
