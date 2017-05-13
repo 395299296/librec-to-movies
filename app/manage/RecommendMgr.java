@@ -36,6 +36,10 @@ public class RecommendMgr {
     private Recommender ratingRecommender;
     private TextDataModel dataModel;
     
+    private List<Movie> releaseTopList;
+    private List<Movie> scoreTopList;
+    private List<Movie> hotTopList;
+    
     private RecommendMgr () {
     	 
     }
@@ -86,6 +90,41 @@ public class RecommendMgr {
         buildRecommender(ratingRecommender, conf);
 	}
 	
+	public void sortMovies() {
+		// sort by average score desc
+		Collections.sort(Movie.allMovies, new Comparator<Movie>() {
+            public int compare(Movie m1, Movie m2) {
+                return m2.avg_rating.compareTo(m1.avg_rating);
+            }
+        });
+		scoreTopList = new ArrayList<>();
+		for (Movie movie:Movie.allMovies) {
+			scoreTopList.add(movie);
+		}
+		
+		// sort by release time desc
+		Collections.sort(Movie.allMovies, new Comparator<Movie>() {
+            public int compare(Movie m1, Movie m2) {
+                return m2.released_at.compareTo(m1.released_at);
+            }
+        });
+		releaseTopList = new ArrayList<>();
+		for (Movie movie:Movie.allMovies) {
+			releaseTopList.add(movie);
+		}
+		
+		// sort by average score date time desc
+		Collections.sort(Movie.allMovies, new Comparator<Movie>() {
+            public int compare(Movie m1, Movie m2) {
+                return m2.avg_datetime.compareTo(m1.avg_datetime);
+            }
+        });
+		hotTopList = new ArrayList<>();
+		for (Movie movie:Movie.allMovies) {
+			hotTopList.add(movie);
+		}
+	}
+	
 	public void buildRecommender(Recommender recommender, Configuration conf) {
 		// build item similarity
 		RecommenderSimilarity similarity = new PCCSimilarity();
@@ -117,13 +156,8 @@ public class RecommendMgr {
 	}
 	
 	public List<Movie> getDefaultItemList() {
-		Collections.sort(Movie.allMovies, new Comparator<Movie>() {
-            public int compare(Movie m1, Movie m2) {
-                return m2.avg_rating.compareTo(m1.avg_rating);
-            }
-        });
 		List<Movie> movies = new ArrayList<>();
-    	for (Movie movie:Movie.allMovies) {
+    	for (Movie movie:scoreTopList) {
     		if (movies.size() >= 10)
     			break;
     		movies.add(movie);
@@ -189,37 +223,25 @@ public class RecommendMgr {
 	}
 	
 	public List<Movie> getRecentReleaseList(int page) {
-        // sort by release time
-		Collections.sort(Movie.allMovies, new Comparator<Movie>() {
-            public int compare(Movie m1, Movie m2) {
-                return m2.released_at.compareTo(m1.released_at);
-            }
-        });
 		List<Movie> movies = new ArrayList<>();
 		int start = page * 5;
 		if (start < 0)
 			return movies;
 		
 		int end = (page + 1) * 5;
-		if (end >= Movie.allMovies.size())
-			end = Movie.allMovies.size();
+		if (end >= releaseTopList.size())
+			end = releaseTopList.size();
 		
     	for (int i = start; i < end; i++) {
-    		movies.add(Movie.allMovies.get(i).clone());
+    		movies.add(releaseTopList.get(i).clone());
     	}
     	
     	return movies;
 	}
 	
 	public List<Movie> getScoreTopList() {
-		// sort by average rating value
-		Collections.sort(Movie.allMovies, new Comparator<Movie>() {
-            public int compare(Movie m1, Movie m2) {
-                return m2.avg_rating.compareTo(m1.avg_rating);
-            }
-        });
 		List<Movie> movies = new ArrayList<>();
-    	for (Movie movie:Movie.allMovies) {
+    	for (Movie movie:scoreTopList) {
     		if (movies.size() >= 10)
     			break;
     		movies.add(movie);
@@ -228,14 +250,8 @@ public class RecommendMgr {
 	}
 	
 	public List<Movie> getHotTopList() {
-		// sort by average score date time value
-		Collections.sort(Movie.allMovies, new Comparator<Movie>() {
-            public int compare(Movie m1, Movie m2) {
-                return m2.avg_datetime.compareTo(m1.avg_datetime);
-            }
-        });
 		List<Movie> movies = new ArrayList<>();
-    	for (Movie movie:Movie.allMovies) {
+    	for (Movie movie:hotTopList) {
     		if (movies.size() >= 8)
     			break;
     		movies.add(movie);

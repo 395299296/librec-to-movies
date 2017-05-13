@@ -124,6 +124,9 @@ public class Bootstrap extends Job {
 		}
 		end = System.currentTimeMillis();
         LOG.info( "Load rating set costs " + (end - start) + " milliseconds" );
+        
+        // sort movies
+        RecommendMgr.getInstance().sortMovies();
     }
       
 }
