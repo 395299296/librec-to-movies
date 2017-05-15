@@ -2,89 +2,86 @@
 #{set title:'Home' /}
 
 <div class="banner">
-    <div id="d_tab29">
-        <ul class="d_img">
-            #{set count:1/}
-            #{list items:recommend_list, as:'movie'}
-            <li class="d_pos${count}">
-                <a title="${movie.title}" href="/movies/${movie.movie_id}">
-                    <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}"/>
-                </a>
-            </li>
-            #{set count:count+1 /}
-            #{/list}
-        </ul>
-        <ul class="d_menu"></ul>
-        <p class="d_prev"></p>
-        <p class="d_next"></p>
-    </div>
-</div>
-<div class="wrapper">
-    <div class="left clear">
-        <div id=menu>
-            <ul id=nav>
-                <li>
-                    <a class=nav_on>
-                        <span>Recent release movies</span>
+	<div class="container">
+		<div id="box">
+		    <ul>
+				#{set count:1/}
+		        #{list items:recommend_list, as:'movie'}
+				<li>
+                    <a title="" href="/movies/${movie.movie_id}">
+                        <img src="/public/upload/${movie.title}.jpg" title="${movie.title}" />
                     </a>
-                </li>
-            </ul>
-            <div id=menu_con>
-                <div id=view_list>
-                    <div class="tupian clear">
+		        </li>
+				#{set count:count+1 /}
+		        #{/list}
+		    </ul>
+            <pre class="prev">&lt;&lt;</pre>
+            <pre class="next">&gt;&gt;</pre>
+		</div>
+	</div>
+</div><!-- /.banner -->
+
+<div class="container">
+    <div class="row-fluid">
+        <div class="span8">
+            <div class="left">
+                <ul id=nav>
+                    <li>
+                        <a>Recent release movies</a>
+                    </li>
+                </ul>
+                <div id=view_list> 
+                    <ul >
                         #{list items:recent_list, as:'movie'}
-                        <a title="" href="/movies/${movie.movie_id}">
-                            <div class="tu-1">
-                                <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}">
-                            </div>
-                            <div class="tu-2 clear">
-                                <div class="tu-3">
-                                    <p class="lan">${movie.title}</p>
+                        <li>
+                            <a title="" href="/movies/${movie.movie_id}">
+                                <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}" />
+                                <div class="row-fluid">
+                                    <div class="span10 title">
+                                        <p>${movie.title}</p>
+                                    </div>
+                                    <div class="span2 score">
+                                        <i>${movie.avg_rating}</i>
+                                    </div>
                                 </div>
-                                <div class="tu-4">
-                                    <i>${movie.avg_rating}</i>
-                                </div>
-                            </div>
-                        </a>
+                            </a>
+                        </li>
                         #{/list}
-                    </div>
+                    </ul>
                 </div>
-                <div class="jiazai">
-                    <a id="btn_more" href="javascript:;">View more >></a>
-                </div>
+                <ul class="jiazai">
+                    <li>
+                        <a id="btn_more" href="javascript:;">View more >></a>
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
-    <div class="right">
-        <div class="bang">
-            <div class="hd">Score list Top10</div>
-            <div class="tt-1"></div>
-            <div class="lie-1">
-                <ul>
-                    #{list items:score_list, as:'movie'}
-                    <li>
-                        <a href="/movies/${movie.movie_id}" title="${movie.title}">${movie.title}</a>
-                        <span>
-                            <em>${movie.avg_rating}</em>
-                        </span>
-                    </li>
-                    #{/list}
-                </ul>
+        <div class="span4">
+            <div class="right">
+                <div class="bang">
+                    <div class="hd">Score list Top10</div>
+                    <ul>
+                        #{list items:score_list, as:'movie'}
+                        <li>
+                            <div class="title">
+                                <a href="/movies/${movie.movie_id}" title="${movie.title}">${movie.title}</a>
+                            </div>
+                            <div class="score">
+                                <span><em>${movie.avg_rating}</em></span>
+                            </div>
+                        </li>
+                        #{/list}
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 #{set 'moreScripts'}
-<script src="@{'/public/javascripts/jquery.DB_rotateRollingBanner.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+<script src="@{'/public/javascripts/banner.js'}" type="text/javascript" charset="${_response_encoding}"></script>
 <script type="text/javascript">
     $(document).ready(function(){
-        $('#d_tab29').DB_rotateRollingBanner({
-            key:"c37080",
-            moveSpeed:300,
-            autoRollingTime:3000
-        });
-
         var counter = 1;
         var listAction = #{jsAction @Application.show_more_movies(':index')/}
         $('#btn_more').click(function() {
@@ -95,26 +92,26 @@
         });
 
         function loadMoreMovies(obj) {
-            var result = '<div class="tupian clear">';
+            var result = '<ul>';
             if (obj.length > 0) {
                 for (var i = 0; i < obj.length; i++) {
-                    var value = obj[i];
+                    var movie = obj[i];
                     result += 
-                    '<a title="" href="/movies/' + value.movie_id + '">' +
-                        '<div class="tu-1">' + 
-                            '<img src="/public/upload/' + value.title + '.jpg" alt="' + value.title + '">' +
-                        '</div>' +
-                        '<div class="tu-2 clear">' + 
-                            '<div class="tu-3">' + 
-                                '<p class="lan">' + value.title + '</p>' + 
-                            '</div>' + 
-                            '<div class="tu-4">' + 
-                                '<i>' + value.avg_rating + '</i>' + 
-                            '</div>' + 
-                        '</div>' +
-                    '</a>';
+                    '<li>' +
+                        '<a title="" href="/movies/' + movie.movie_id + '">' +
+                            '<img src="/public/upload/' + movie.title + '.jpg" alt="' + movie.title + '" />' +
+                            '<div class="row-fluid">' +
+                                '<div class="span10 title">' +
+                                    '<p>' + movie.title + '</p>' +
+                                '</div>' +
+                                '<div class="span2 score">' +
+                                    '<i>' + movie.avg_rating + '</i>' +
+                                '</div>' +
+                            '</div>' +
+                        '</a>' +
+                    '</li>'
                 }
-                result += '</div>';
+                result += '</ul>'
                 $('#view_list').append(result);
                 var y = window.scrollY;
                 scroll(y, y + 400);

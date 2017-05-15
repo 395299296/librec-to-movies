@@ -5,70 +5,84 @@
         <title>#{get 'title' /}</title>
         <meta charset="${_response_encoding}">
         <link rel="stylesheet" media="screen" href="@{'/public/stylesheets/main.css'}">
+        <link rel="stylesheet" media="screen" href="@{'/public/stylesheets/bootstrap.css'}">
+        <link rel="stylesheet" media="screen" href="@{'/public/stylesheets/bootstrap-responsive.css'}">
         #{get 'moreStyles' /}
         <link rel="shortcut icon" type="image/png" href="@{'/public/images/logo.png'}">
     </head>
     <body>
-        <div class="wrap">
-            <div class="header">
-                <div class="top">
-                    <div class="zc clear">
-                        <div class="zc-1">
-                            <img src="@{'/public/images/logo.png'}">
-                            <a href="/">Homepage</a>
-                        </div>
-                        #{if flash.contains("message")}
-                        <div class="flashes">
-                            <a>${flash.get("message")}</a>
-                        </div>
-                        #{/if}
-                        <div class="zc-2">
-                            <a href="/logout">Logout</a>
-                            <a href="/login">Login</a>
-                        </div>
+        <!-- navbar
+        ================================================== -->
+        <div class="navbar-wrapper">
+            <!-- Wrap the .navbar in .container to center it within the absolutely positioned parent. -->
+            <div class="container">
+                <div class="navbar">
+                    <div class="home">
+                        <img src="@{'/public/images/logo.png'}">
+                        <a href="/">Homepage</a>
                     </div>
-                </div>
-                <!--top结束-->
-            </div>
-            <!--header结束-->
+                    #{if flash.contains("message")}
+                    <div class="flashes">
+                        <a>${flash.get("message")}</a>
+                    </div>
+                    #{/if}
+                    <div class="menu">
+                        <a href="/login">Login</a>
+                        <a href="/logout">Logout</a>
+                    </div>
+                </div><!-- /.navbar -->
+            </div> <!-- /.container -->
+        </div><!-- /.navbar-wrapper -->
+        
+        <div class="center">
+
             #{doLayout /}
-            <div class="footer clear">
-                <div class="foot">
-                    <div class="dao-1">
-                        <div class="dao">Friendly link</div>
-                        <ul>
-                            <li>
-                                <a target="_blank" href="http://www.librec.net/" tppabs="http://www.librec.net/">LibRec</a>
-                            </li>
-                            <li>
-                                <a target='_blank' href="https://www.playframework.com/" tppabs="https://www.playframework.com/">play framework</a>
-                            </li>
-                            <li>
-                                <a target="_blank" href="http://www.imdb.com/" tppabs="http://www.imdb.com/">IMDB - Movies</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="dao-3">
-                        <div class="dao">On site</div>
-                        <div class="dao-2">This site is built upon the recommendation algorithms provided by the LibRec open-source project. More information can be referred to <a target="_blank" href="http://www.librec.net/" tppabs="http://www.librec.net/">LibRec official website</a></div>
-                    </div>
-                    <div class="gw">
-                        <a target="_blank" href="http://weibo.com/guoguibing">
-                            <img src="@{'public/images/weibo.png'}" tppabs="http://weibo.com/guoguibing" alt="">
-                        </a>
-                        <p>Weibo</p>
-                    </div>
-                    <div class="gw">
-                        <a target="_blank" href="@{'public/images/mp.jpg'}">
-                            <img src="@{'public/images/mp.jpg'}">
-                        </a>
-                        <p>WeChat</p>
+
+            <!-- footer
+            ================================================== -->
+            <footer class="footer-wrapper">
+                <div class="container">
+                    <div class="footer">
+                        <div class="row-fluid">
+                            <div class="span2 ">
+                                <div class="title">Friendly link</div>
+                                <ul class="column1">
+                                    <li>
+                                        <a target="_blank" href="http://www.librec.net/" tppabs="http://www.librec.net/">LibRec</a>
+                                    </li>
+                                    <li>
+                                        <a target='_blank' href="https://www.playframework.com/" tppabs="https://www.playframework.com/">play framework</a>
+                                    </li>
+                                    <li>
+                                        <a target="_blank" href="http://www.imdb.com/" tppabs="http://www.imdb.com/">IMDB - Movies</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="span6">
+                                <div class="title">On site</div>
+                                <div class="column2">This site is built upon the recommendation algorithms provided by the LibRec open-source project. More information can be referred to <a target="_blank" href="http://www.librec.net/" tppabs="http://www.librec.net/">LibRec official website</a></div>
+                            </div>
+                            <div class="span4">
+                                <div class="gw">
+                                    <a target="_blank" href="@{'public/images/mp.jpg'}">
+                                        <img src="@{'public/images/mp.jpg'}">
+                                    </a>
+                                    <p>WeChat</p>
+                                </div>
+                                <div class="gw">
+                                    <a target="_blank" href="http://weibo.com/guoguibing">
+                                        <img src="@{'public/images/weibo.png'}" tppabs="http://weibo.com/guoguibing" alt="">
+                                    </a>
+                                    <p>Weibo</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <!--footer结束-->
-        </div>
-        <script src="@{'/public/javascripts/jquery-1.8.3.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
+            </footer><!-- /.footer -->
+        </div><!-- /.center -->
+        
+        <script src="@{'/public/javascripts/jquery-1.6.4.min.js'}" type="text/javascript" charset="${_response_encoding}"></script>
         #{get 'moreScripts' /}
     </body>
 </html>

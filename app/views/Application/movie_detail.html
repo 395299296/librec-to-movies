@@ -1,76 +1,80 @@
 #{extends 'main.html' /}
 #{set title:'Movie detail' /}
 
-<div class="wrapper">
-    <div class="yybt">
-        <div class="left-2">
-            <div class="fk">
-                <div class="fk-1">
-                    <div class="fk-2">
-                        <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}">
-                    </div>
-                    <div class="fk-3">
-                        <div class="hdd">
-                            <h3>${movie.title}</h3>
-                            <span>
-                                <i>${movie.avg_rating}</i>
-                            </span>
+<div class="container">
+    <div class="row-fluid">
+        <div class="span8">
+            <div class="left">
+                <div class="fk">
+                    <div class="row-fluid">
+                        <div class="span4">
+                            <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}">
                         </div>
-                        <div class="bdd">
-                            <ul>
-                                <li >
-                                    <i>Title:</i>
-                                    <a>${movie.title}</a>
-                                </li>
-                                <li>
-                                    <i>Release date：</i>
-                                    <a>${movie.released_at}</a>
-                                </li>
-                                <li>
-                                    <i>Plot type：</i>
-                                    <a>${movie.subtext}</a>
-                                </li>
-                            </ul>
+                        <div class="span8">
+                            <div class="detail">
+                                <div class="hdd">
+                                    <h3>${movie.title}</h3>
+                                    <span>
+                                        <i>${movie.avg_rating}</i>
+                                    </span>
+                                </div>
+                                <div class="bdd">
+                                    <ul>
+                                        <li >
+                                            <i>Title:</i>
+                                            <a>${movie.title}</a>
+                                        </li>
+                                        <li>
+                                            <i>Release date：</i>
+                                            <a>${movie.released_at}</a>
+                                        </li>
+                                        <li>
+                                            <i>Plot type：</i>
+                                            <a>${movie.subtext}</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="summary">
+                                <div class="hdd">Plot summary</div>
+                                <div class="bdd" style="font-size:15px">${movie.summary}</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="fk-4">
-                        <div class="hdd">Plot summary</div>
-                        <div class="bdd" style="font-size:15px">${movie.summary}</div>
                     </div>
                 </div>
-            </div>
-            <div class="luo">
-                <div class="hdd-1">
-                    <h3>
-                        <a>Your Rating</a>
-                    </h3>
-                    <div class="rating">
-                        #{if user_rating}
-                            <p>You currently rate this a ${user_rating.score}</p>
-                        #{/if}
-                        #{else}
-                            <p>You did not rate this movie, yet.</p>
-                            #{if prediction}
-                                <p>We predict you will rate this movie ${prediction}.</p>
+                <div class="luo">
+                    <div class="hdd">
+                        <h3>
+                            <a>Your Rating</a>
+                        </h3>
+                        <div class="rating">
+                            #{if user_rating}
+                                <p>You currently rate this a ${user_rating.score}</p>
                             #{/if}
-                        #{/else}
-                    </div>
-                    <div class="score">
-                        <form action="/new_rating" method="POST">
-                            <input class="text" type="number" id="text_rating" min="1" max="5" name="new_rating" placeholder="1-5"> 
-                            <input class="text" type="hidden" name="movie_id" value="${movie.movie_id}">
-                            <input class="btn" type="submit" id="btn_sub" value="Submit">
-                        </form>
+                            #{else}
+                                <p>You did not rate this movie, yet.</p>
+                                #{if prediction}
+                                    <p>We predict you will rate this movie ${prediction}.</p>
+                                #{/if}
+                            #{/else}
+                        </div>
+                        <div class="score">
+                            <form action="/new_rating" method="POST">
+                                <input class="text" type="number" id="text_rating" min="1" max="5" name="new_rating" placeholder="1-5"> 
+                                <input class="text" type="hidden" name="movie_id" value="${movie.movie_id}">
+                                <input class="btn" type="submit" id="btn_sub" value="Submit">
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="right-2">
-            <div class="zui-1">
+        <div class="span4 fk">
+            <div class="correlation">
                 <div class="hd">
                     <h3>Recommend users also like</h3>
                 </div>
-                <div class="bd clear">
+                <div class="bd">
                     #{list items:recommend_list, as:'movie'}
                     <a href="/movies/${movie.movie_id}" title="${movie.title}">
                         <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}">
@@ -83,9 +87,9 @@
                     </span>
                 </div>
             </div>
-            <div class="bang-4">
+            <div class="rank-score">
                 <div class="hd">Related lists from users</div>
-                <div class="lie-3">
+                <div class="rank-list">
                     <ul>
                         #{set count:1/}
                         #{list items:hot_list, as:'movie'}

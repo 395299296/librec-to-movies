@@ -1,21 +1,21 @@
 #{extends 'main.html' /}
 #{set title:'Login' /}
 
-<div class="wrapper">
+<div class="container">
     <form method="post" action="/logged_in">
-        <div class="login clear">
+        <div class="login">
             <div class="hd">
                 <h3>Login information</h3>
             </div>
-            <div class="bd clear">
-                <div class="tian">
-                    <div class="mc">user_id</div>
-                    <input class="user inptText" id="user_id" name="user_id" type="text" />
-                    <span>1~943</span>
+            <div class="row-fluid form">
+                <div class="span3">
+                    <div class="lb">user_id</div>
                 </div>
-            </div>
-            <div class="dj clear">
-                <input id ="btn_sub" type="submit" value="Login"></input>
+                <div class="span6">
+                    <input class="user" id="user_id" name="user_id" type="text" />
+                    <span>1~943</span>
+                    <input class="submit" id ="btn_sub" type="submit" value="Login"></input>
+                </div>
             </div>
         </div>
     </form>
