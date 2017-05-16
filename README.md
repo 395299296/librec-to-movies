@@ -14,10 +14,11 @@ LibRec是用Java开发，所以首先得安装JDK，当前版本需要JDK1.7或�
 选中eclipse的workspace文件夹，当然也可以是其他目录，看个人喜好，按住shift键的同时右键，单击“在此处打开命令窗口”，然后命令行中输入以下命令并回车，中间会提示让你输入项目全名，可以直接回车
 play new librec-demo
 结果如下所示
-![image](https://github.com/395299296/librec-to-movies/tree/master/documentation/images/20170516142924.png)
+![image](https://github.com/395299296/librec-to-movies/documentation/images/20170516142924.png)
 这时我们的项目就已经创建好了，在命令行以下命令并回车
 
 cd librec-demo
+
 play run
 
 等服务运行起来之后就可以打开浏览器输入http://127.0.0.1:9000/，因为加载的资源是国外的地址，所以打开会比较慢，但是效果还是不错的
