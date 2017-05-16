@@ -1,4 +1,6 @@
-# librec-to-movies
+librec-to-movies
+===================================
+
 librec application to movies recommender system
 play framework version 1.4.x
 
@@ -17,6 +19,7 @@ LibRec是用Java开发，所以首先得安装JDK，当前版本需要JDK1.7或�
 play new librec-demo
 
 结果如下所示
+
 ![Alt text](https://github.com/395299296/librec-to-movies/blob/master/documentation/images/20170516144447.png)
 
 这时我们的项目就已经创建好了，在命令行输入以下命令并回车
@@ -27,6 +30,7 @@ play run
 
 等服务运行起来之后就可以打开浏览器输入http://127.0.0.1:9000/
 因为加载的资源是国外的地址，所以打开会比较慢，但是效果还是不错的
+
 ![Alt text](https://github.com/395299296/librec-to-movies/blob/master/documentation/images/20170516144817.png)
 
 
@@ -35,6 +39,7 @@ play run
 git clone https://github.com/guoguibing/librec.git
 
 等源码下载完毕，就可以将其导入到eclipse中，如图
+
 ![Alt text](https://github.com/395299296/librec-to-movies/blob/master/documentation/images/20170516150135.png)
 
 Maven会自动下载LibRec所需的依赖包，可能需要几分钟的时间，因为我是挂着翻墙软件，所以速度还算可以，否则且得等一会。
@@ -48,6 +53,7 @@ play eclipsify
 然后正如所显示的那样，Use File/Import/General/Existing project to import G:\eclipse\workspace\librec-demo into eclipse
 
 最后我们将LibRec以依赖项目的方式引用到librec-demo项目中，右击项目选择属性然后将librec-core添加到依赖项目列表中，请注意这样只是为了调试方便，项目发布的时候要改成依赖库的方式
+
 ![Alt text](https://github.com/395299296/librec-to-movies/blob/master/documentation/images/20170516152006.png)
 
 # 测试LibRec
@@ -66,6 +72,7 @@ RecommenderJob job = new RecommenderJob(conf);
 job.runJob();
 
 然后右击librec-demo.launch选择Run As->librec-demo运行项目
+
 ![Alt text](https://github.com/395299296/librec-to-movies/blob/master/documentation/images/20170516153004.png)
 
 这里说明三点，首先，设置数据目录为"../librec/data"是相对目录，根据具体使用路径不同而不同，也可以改成绝对路径；其次，play项目配置默认是开发模式，服务运行起来之后当有代码修改会立即生效可以不用再重启服务；然后，要调试的话右击Connect JPDA to librec-demo.launch选择Debug As->Connect JPDA to librec-demo就可以下断点调试了。
@@ -116,6 +123,7 @@ job.runJob();
 # 收集数据
 要展示一个推荐的电影内容给大家，前提是得有数据，于是我从GitHub上找了一些别人用过的数据集，另外我还写了个爬虫获取了电影的图片及介绍，整理后的完整数据可以在[这里](http://files.liaotian2020.com/data.zip)下载
 解压到librec-demo根目录，预览内容如下所示
+
 ![Alt text](https://github.com/395299296/librec-to-movies/blob/master/documentation/images/20170516161312.png)
 
 # 数据预处理
@@ -123,8 +131,11 @@ job.runJob();
 
 # 添加页面
 后台逻辑其实还是比较简单，大量的代码已经由LibRec实现了，我们只是做一点数据维护与接口调用的事情，比较繁琐的还是前端页面，由于我并没有正式的开发过网站，对于CSS跟JavaScript只是看别人写好的网站看懂的，鉴于时间关系，我们直接下载一个已有的网站拿来改，网上有太多精美绝伦的网站，相信大家一定能找得到中意的，然后用Teleport这样的整站下载器下载前端全部源码及资源，再根据自身需求进行调整，大致的框架不变的话，只是做一些小修改，但是后来发现有个问题，用他的源码改出来的页面对于手机浏览器不适应，没办法，天下没有免费的午餐，还得将前端页面重构一遍，我用了Bootstrap——简洁、直观、强悍的前端开发框架，让web开发更迅速、简单。果真如其所说，相当强悍，浏览器的兼容问题完全不用考虑，他都已经帮你实现，我们要做的无非就是从他的官网下载源码，然后放到我们的项目中
+
 ![Alt text](https://github.com/395299296/librec-to-movies/blob/master/documentation/images/20170516174634.png)
+
 main.css是我们自定义的样式表，然后按他布局方式，控件用法写，而且官网有很多案例，看看源码就大致清楚怎么用了，如下是切换到手机页面的预览效果
+
 ![Alt text](https://github.com/395299296/librec-to-movies/blob/master/documentation/images/20170516175143.png)
 
 # 后台实现
@@ -139,7 +150,9 @@ GET     /users/{user_id}         Application.show_user
 POST    /logged_in               Application.is_logged_in
 POST    /new_rating              Application.add_new_rating
 前面是访问地址，后面是所映射的控制器接口，比如我们在Application的index方法添加如下逻辑，访问主页的时候会自动响应index方法
+
 ![Alt text](https://github.com/395299296/librec-to-movies/blob/master/documentation/images/20170516180551.png)
+
 ![Alt text](https://github.com/395299296/librec-to-movies/blob/master/documentation/images/20170516181207.png)
 
 这里我们为主页传递了三个数据列表参数，一个是推荐的电影列表，一个是最近上映的电影列表，一个是评分排名列表，而所推荐的电影列表又分为用户未登陆的默认列表跟登陆后的推荐列表，推荐算法我用的是ItemKNNRecommender。
