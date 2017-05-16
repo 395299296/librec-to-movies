@@ -84,40 +84,45 @@
     $(document).ready(function(){
         var counter = 1;
         var listAction = #{jsAction @Application.show_more_movies(':index')/}
-        $('#btn_more').click(function() {
-            $.get(listAction({index: counter}), function(data){
-                loadMoreMovies(data);
-                counter++;
-            });
-        });
 
-        function loadMoreMovies(obj) {
-            var result = '<ul>';
-            if (obj.length > 0) {
-                for (var i = 0; i < obj.length; i++) {
-                    var movie = obj[i];
-                    result += 
-                    '<li>' +
-                        '<a title="" href="/movies/' + movie.movie_id + '">' +
-                            '<img src="/public/upload/' + movie.title + '.jpg" alt="' + movie.title + '" />' +
-                            '<div class="row-fluid">' +
-                                '<div class="span10 title">' +
-                                    '<p>' + movie.title + '</p>' +
-                                '</div>' +
-                                '<div class="span2 score">' +
-                                    '<i>' + movie.avg_rating + '</i>' +
-                                '</div>' +
-                            '</div>' +
-                        '</a>' +
-                    '</li>'
-                }
-                result += '</ul>'
-                $('#view_list').append(result);
-                var y = window.scrollY;
-                scroll(y, y + 400);
-            } else {
-                $('#btn_more').hide();
+        var dh = window.innerHeight / window.innerWidth;
+        if (dh > 1) {
+            for (var i = 0; i < Math.round(dh) + 1; i++) {
+                loadMoreMovies();
             }
+        }
+
+        $('#btn_more').click(loadMoreMovies);
+
+        function loadMoreMovies() {
+            $.get(listAction({index: counter++}), function(data){
+                var result = '<ul>';
+                if (data.length > 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        var movie = data[i];
+                        result += 
+                        '<li>' +
+                            '<a title="" href="/movies/' + movie.movie_id + '">' +
+                                '<img src="/public/upload/' + movie.title + '.jpg" alt="' + movie.title + '" />' +
+                                '<div class="row-fluid">' +
+                                    '<div class="span10 title">' +
+                                        '<p>' + movie.title + '</p>' +
+                                    '</div>' +
+                                    '<div class="span2 score">' +
+                                        '<i>' + movie.avg_rating + '</i>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</a>' +
+                        '</li>'
+                    }
+                    result += '</ul>'
+                    $('#view_list').append(result);
+                    var y = window.scrollY;
+                    scroll(y, y + 400);
+                } else {
+                    $('#btn_more').hide();
+                }
+            });
         }
     })
 </script>

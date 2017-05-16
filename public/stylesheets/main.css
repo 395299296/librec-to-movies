@@ -521,13 +521,13 @@ body {
 .rank-list ul li {
     overflow:hidden;
     list-style:none;
+    height:30px;
 	line-height:30px;
 	border-bottom:1px dashed #ddd
 }
 .rank-list ul li a {
 	font-size:14px;
 	color:#333;
-	padding:0 10px
 }
 .rank-list ul li span {
 	float:right;
