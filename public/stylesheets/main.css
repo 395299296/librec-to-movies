@@ -534,3 +534,39 @@ body {
 .rank-list ul li span i {
 	padding:0 5px
 }
+.test {
+
+}
+.test .hd {
+    height:46px;
+    line-height:46px;
+    border-bottom:1px solid #ddd
+}
+.test .hd h3 {
+    float:left;
+    line-height:35px;
+    font-size:28px;
+    color:#181818;
+    border-bottom:3px solid #000;
+    padding-left:5px
+}
+.test .select {
+    padding-top:10px;
+    width:100%;   
+}
+#select_algo {
+    width:100%;
+}
+.test .list {
+    padding-top:10px;
+    overflow:hidden;
+}
+.test .left {
+    margin: 0 auto;
+    max-width:120px;
+    max-height:180px;
+}
+.test .right {
+    margin:0;
+    padding-left:4%;
+}

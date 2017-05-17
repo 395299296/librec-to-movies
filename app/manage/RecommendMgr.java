@@ -1,13 +1,18 @@
 package manage;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import common.Util;
+import javafx.animation.KeyValue;
+import javafx.util.Pair;
 import models.*;
 import net.librec.common.LibrecException;
 import net.librec.conf.Configuration;
@@ -58,10 +63,7 @@ public class RecommendMgr {
 	}
 	     
 	public void init() {
-		Configuration conf = new Configuration();
-        conf.set("dfs.data.dir", "data");
-        conf.set("data.input.path", "u.data");
-        conf.set("data.column.format", "UIRT");
+		Configuration conf = getConfig();
 		dataModel = new TextDataModel(conf);
         try {
 			dataModel.buildDataModel();
@@ -72,7 +74,6 @@ public class RecommendMgr {
 
         // build item recommender
         LOG.info("build item recommender");
-        conf.set("rec.recommender.similarity.key" ,"item");
         itemRecommender = new ItemKNNRecommender();
         buildRecommender(itemRecommender, conf);
         
@@ -87,6 +88,14 @@ public class RecommendMgr {
         LOG.info("build rating recommender");
         ratingRecommender = new PMFRecommender();
         buildRecommender(ratingRecommender, conf);*/
+	}
+	
+	public Configuration getConfig() {
+		Configuration conf = new Configuration();
+        conf.set("dfs.data.dir", "data");
+        conf.set("data.input.path", "u.data");
+        conf.set("data.column.format", "UIRT");
+        return conf;
 	}
 	
 	public void sortMovies() {
@@ -124,7 +133,9 @@ public class RecommendMgr {
 		}
 	}
 	
-	public void buildRecommender(Recommender recommender, Configuration conf) {
+	public long buildRecommender(Recommender recommender, Configuration conf) {
+		// set configuration
+		setConfig(recommender.getClass().getName(), conf);
 		// build item similarity
 		RecommenderSimilarity similarity = new PCCSimilarity();
         similarity.buildSimilarityMatrix(dataModel);
@@ -152,21 +163,27 @@ public class RecommendMgr {
 			e.printStackTrace();
 		}
 		
+        return end - start;
 	}
 	
-	public List<Movie> getDefaultItemList() {
+	public List<Movie> getDefaultItemList(int limit) {
 		List<Movie> movies = new ArrayList<>();
     	for (Movie movie:scoreTopList) {
-    		if (movies.size() >= 10)
+    		if (movies.size() >= limit)
     			break;
     		movies.add(movie);
     	}
     	return movies;
 	}
 	
-	public List<Movie> getFilterItemList(String user_id) {
+	public List<Movie> getFilterItemList(String user_id, int limit) {
         // filter the recommended result
-        List<RecommendedItem> recommendedItemList = itemRecommender.getRecommendedList();
+        return getFilterItemList(itemRecommender, user_id, limit);
+	}
+	
+	public List<Movie> getFilterItemList(AbstractRecommender recommender, String user_id, int limit) {
+        // filter the recommended result
+        List<RecommendedItem> recommendedItemList = recommender.getRecommendedList();
         GenericRecommendedFilter filter = new GenericRecommendedFilter();
         List<String> userIdList = new ArrayList<>();
         userIdList.add(user_id);
@@ -175,7 +192,7 @@ public class RecommendMgr {
         
         List<Movie> movies = new ArrayList<>();
         for (RecommendedItem item:recommendedItemList) {
-        	if (movies.size() >= 12)
+        	if (movies.size() >= limit)
     			break;
         	Long movie_id = Long.parseLong(item.getItemId());
         	Movie movie = Movie.getMovie(movie_id);
@@ -200,7 +217,7 @@ public class RecommendMgr {
 		return 0.0;
 	}
 	
-	public List<Movie> getFilterUserList(String user_id, String item_id) {
+	public List<Movie> getFilterUserList(String user_id, String item_id, int limit) {
         // filter the recommended result
         List<RecommendedItem> recommendedItemList = itemRecommender.getRecommendedList();
         GenericRecommendedFilter filter = new GenericRecommendedFilter();
@@ -213,7 +230,7 @@ public class RecommendMgr {
         
         List<Movie> movies = new ArrayList<>();
         for (RecommendedItem item:recommendedItemList) {
-        	if (movies.size() >= 8)
+        	if (movies.size() >= limit)
     			break;
         	if (item.getItemId().equals(item_id)) continue;
         	Long movie_id = Long.parseLong(item.getItemId());
@@ -241,23 +258,72 @@ public class RecommendMgr {
     	return movies;
 	}
 	
-	public List<Movie> getScoreTopList() {
+	public List<Movie> getScoreTopList(int limit) {
 		List<Movie> movies = new ArrayList<>();
     	for (Movie movie:scoreTopList) {
-    		if (movies.size() >= 10)
+    		if (movies.size() >= limit)
     			break;
     		movies.add(movie);
     	}
     	return movies;
 	}
 	
-	public List<Movie> getHotTopList() {
+	public List<Movie> getHotTopList(int limit) {
 		List<Movie> movies = new ArrayList<>();
     	for (Movie movie:hotTopList) {
-    		if (movies.size() >= 8)
+    		if (movies.size() >= limit)
     			break;
     		movies.add(movie);
     	}
     	return movies;
+	}
+	
+	public List<Pair<String, String>> getRecommenderAlgorithms() {
+		String packageName = "net.librec.recommender";
+		List<Pair<String, String>> algorithms = new ArrayList<>();
+        List<String> classNames = Util.getClassName(packageName, true);
+        if (classNames != null) {
+        	for (String className:classNames) {
+        		if (className.indexOf("$") != -1) continue;
+        		int index = className.lastIndexOf(".");
+        		String algoName = className.substring(index + 1);
+        		if (!algoName.equals("AbstractRecommender") && !algoName.equals("package-info")) {
+        			algorithms.add(new Pair<String, String>(algoName, className));
+        		}
+        	}
+        }
+        Collections.sort(algorithms, new Comparator<Pair<String, String>>() {
+            public int compare(Pair<String, String> p1, Pair<String, String> p2) {
+                return p1.getKey().compareTo(p2.getKey());
+            }
+        });
+        return algorithms;
+	}
+	
+	public void setConfig(String className, Configuration conf) {
+		int index = className.lastIndexOf(".");
+		String algoName = className.substring(index + 1);
+		switch (algoName) {
+		case "AoBPRRecommender":
+			conf.set("rec.item.distribution.parameter", "500");
+			break;
+		case "ItemKNNRecommender":
+			conf.set("rec.recommender.similarity.key" ,"item");
+			break;
+		case "EFMRecommender":
+			conf.set("rec.iterator.maximum", "20");
+			break;
+		case "FISMaucRecommender":
+			conf.set("rec.fismauc.rho", "0.5");
+			break;
+		case "FISMrmseRecommender":
+			conf.set("rec.fismrmse.rho", "1");
+			break;
+		case "FactorizationMachineRecommender":
+			
+			break;
+		default:
+			break;
+		}
 	}
 }

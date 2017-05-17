@@ -1,0 +1,69 @@
+#{extends 'main.html' /}
+#{set title:'Test' /}
+
+<div class="container test">
+    <div class="hd">
+        <h3>Select recommender algorithm</h3>
+    </div>
+    <div class="select">
+        <form method="post" action="/test">
+            <select id="select_algo" name="className">
+                #{list items:algorithms, as:'algo'}
+                #{if algo.getValue()==className}
+                    <option value="${algo.getValue()}" selected>${algo.getValue()}</option>
+                #{/if}
+                #{else}
+                    <option value="${algo.getValue()}">${algo.getValue()}</option>
+                #{/else}
+                #{/list}
+            </select>
+            <p>Run time:${runtime} milliseconds</p>
+        </form>
+    </div>
+    #{set count:0/}
+    #{list items:recommend_list, as:'movie'}
+    <div class="list">
+        <div class="left">
+            <img src="/public/upload/${movie.title}.jpg" alt="${movie.title}">
+        </div>
+        <div class="right">
+            <div class="detail">
+                <div class="bdd">
+                    <ul>
+                        <li >
+                            <i>Title:</i>
+                            <a>${movie.title}</a>
+                        </li>
+                        <li>
+                            <i>Average Rating:</i>
+                            <a>${movie.avg_rating}</a>
+                        </li>
+                        <li>
+                            <i>Your Rating:</i>
+                            <a>${ratings[count]}</a>
+                        </li>
+                        <li>
+                            <i>Prediction Rating:</i>
+                            <a>${predict_ratings[count]}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    #{set count:count+1 /}
+    #{/list}
+</div>
+
+#{set 'moreScripts'}
+<script type="text/javascript">
+    $(document).ready(function(){
+        var oSelect = document.getElementById("select_algo");
+        $("#select_algo").change(function(){
+            if (oSelect.options[oSelect.selectedIndex].value != '') {
+                oSelect.form.submit();
+            }
+        });
+    })
+</script>
+#{/set}

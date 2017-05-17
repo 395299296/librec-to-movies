@@ -49,6 +49,15 @@ public class MovieEx extends Movie {
 		return 1;
 	}
 	
+	public double getUserRating(Long user_id) {
+		for (UserScore us:ratings) {
+			if (us.user.user_id.equals(user_id)) {
+				return us.score;
+			}
+		}
+		return 0.0;
+	}
+	
 	public void calcAvgRating() {
 		if (ratings.size() != 0) {
 			Double totalScore = 0.0;

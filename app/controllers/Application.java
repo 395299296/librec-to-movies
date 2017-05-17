@@ -3,26 +3,41 @@ package controllers;
 import play.*;
 import play.mvc.*;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hamcrest.core.IsInstanceOf;
+
+import javafx.util.Pair;
 import manage.RecommendMgr;
 import models.*;
+import net.librec.common.LibrecException;
+import net.librec.conf.Configuration;
+import net.librec.recommender.AbstractRecommender;
+import net.librec.recommender.Recommender;
+import net.librec.recommender.TensorRecommender;
+import net.librec.recommender.cf.ItemKNNRecommender;
 
 public class Application extends Controller {
 
+	private static final Log LOG = LogFactory.getLog(Application.class);
+	
     public static void index() {
     	// show recommended movie list
     	List<Movie> recommend_list = new ArrayList<>();
     	String user_id = session.get("user_id");
     	if (user_id == null)
-    		recommend_list = RecommendMgr.getInstance().getDefaultItemList();
+    		recommend_list = RecommendMgr.getInstance().getDefaultItemList(10);
     	else
-    		recommend_list = RecommendMgr.getInstance().getFilterItemList(user_id);
+    		recommend_list = RecommendMgr.getInstance().getFilterItemList(user_id, 10);
         // show recent release movie list
         List<Movie> recent_list = RecommendMgr.getInstance().getRecentReleaseList(0);
         // show score list top 10
-        List<Movie> score_list = RecommendMgr.getInstance().getScoreTopList();
+        List<Movie> score_list = RecommendMgr.getInstance().getScoreTopList(10);
         
         render("@index", recommend_list, recent_list, score_list);
     }
@@ -88,9 +103,9 @@ public class Application extends Controller {
 			prediction = bg.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
     	}
     	// show recommended movie list
-    	List<Movie> recommend_list = RecommendMgr.getInstance().getFilterUserList(user_id, movie_id.toString());
+    	List<Movie> recommend_list = RecommendMgr.getInstance().getFilterUserList(user_id, movie_id.toString(), 12);
         // show recent score movie list top 8
-    	List<Movie> hot_list = RecommendMgr.getInstance().getHotTopList();
+    	List<Movie> hot_list = RecommendMgr.getInstance().getHotTopList(8);
     	
         render("@movie_detail", movie, current_user, user_rating, prediction, recommend_list, hot_list);
     }
@@ -131,6 +146,56 @@ public class Application extends Controller {
 	        }
     	}
     	redirect("/movies/" + movie_id);
+    }
+    
+    /*
+     * test recommendation algorithms.
+     */
+    public static void test(String className) throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, LibrecException {
+    	String user_id = session.get("user_id");
+    	if (user_id == null) {
+    		user_id = "1";
+    		session.put("user_id", user_id);
+    	}
+    	if (className == null || className.isEmpty()) {
+    		className = "net.librec.recommender.cf.rating.PMFRecommender";
+    	}
+    	
+    	Class<?> clazz = Class.forName(className);
+    	Constructor constructor = clazz.getConstructor();
+    	Recommender recommender = (Recommender) constructor.newInstance();
+    	Configuration conf = RecommendMgr.getInstance().getConfig();
+    	// build rating recommender
+        LOG.info("build rating recommender");
+    	Long runtime = RecommendMgr.getInstance().buildRecommender(recommender, conf);
+    	
+    	List<Pair<String, String>> algorithms = RecommendMgr.getInstance().getRecommenderAlgorithms();
+    	List<Double> ratings = new ArrayList<>();
+    	List<Double> predict_ratings = new ArrayList<>();
+    	// show recommended movie list
+    	List<Movie> recommend_list = RecommendMgr.getInstance().getFilterItemList(user_id, Integer.MAX_VALUE);
+    	// sort by movie_id
+		Collections.sort(recommend_list, new Comparator<Movie>() {
+            public int compare(Movie m1, Movie m2) {
+                return m1.movie_id.compareTo(m2.movie_id);
+            }
+        });
+    	for (Movie movie:recommend_list) {
+    		String movie_id = movie.movie_id.toString();
+    		/*if (recommender instanceof AbstractRecommender)
+    			AbstractRecommender newRecommender = (AbstractRecommender) recommender;
+    		else
+    			TensorRecommender newRecommender = (TensorRecommender) recommender;
+    		int userIdx = newRecommender.userMappingData.get(user_id);
+    		int itemIdx = newRecommender.itemMappingData.get(movie_id);*/
+    		Double rating = 0.0; //recommender.predict(userIdx, itemIdx);
+    		BigDecimal bg = new BigDecimal(rating);
+    		rating = bg.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+    		predict_ratings.add(rating);
+    		ratings.add(((MovieEx)movie).getUserRating(Long.parseLong(user_id)));
+    	}
+    	
+        render("@test", algorithms, className, runtime, recommend_list, ratings, predict_ratings);
     }
 
 }
