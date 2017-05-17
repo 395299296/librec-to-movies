@@ -47,24 +47,24 @@
                         <h3>
                             <a>Your Rating</a>
                         </h3>
-                        <div class="rating">
-                            #{if user_rating}
-                                <p>You currently rate this a ${user_rating.score}</p>
+                    </div>
+                    <div class="rating">
+                        #{if user_rating}
+                            <p>You currently rate this a ${user_rating.score}</p>
+                        #{/if}
+                        #{else}
+                            <p>You did not rate this movie, yet.</p>
+                            #{if prediction}
+                                <p>We predict you will rate this movie ${prediction}.</p>
                             #{/if}
-                            #{else}
-                                <p>You did not rate this movie, yet.</p>
-                                #{if prediction}
-                                    <p>We predict you will rate this movie ${prediction}.</p>
-                                #{/if}
-                            #{/else}
-                        </div>
-                        <div class="score">
-                            <form action="/new_rating" method="POST">
-                                <input class="text" type="number" id="text_rating" min="1" max="5" name="new_rating" placeholder="1-5"> 
-                                <input class="text" type="hidden" name="movie_id" value="${movie.movie_id}">
-                                <input class="btn" type="submit" id="btn_sub" value="Submit">
-                            </form>
-                        </div>
+                        #{/else}
+                    </div>
+                    <div class="score">
+                        <form action="/new_rating" method="POST">
+                            <input class="text" type="number" id="text_rating" min="1" max="5" name="new_rating" placeholder="1-5"> 
+                            <input class="text" type="hidden" name="movie_id" value="${movie.movie_id}">
+                            <input class="btn" type="submit" id="btn_sub" value="Submit">
+                        </form>
                     </div>
                 </div>
             </div>

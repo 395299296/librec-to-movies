@@ -427,7 +427,7 @@ body {
 	color:#126cb3;
 	border-bottom:3px solid #126cb3;
 	font-size:20px;
-	float:left
+	float:left;
 }
 .luo .hdd a {
 	color:#000;
@@ -435,17 +435,12 @@ body {
 	padding-left:5px
 }
 .rating {
-    overflow:none;
-	padding-top:50px;
+    padding:20px 5px;
     font-size:16px;
     color:#242424;
 }
 .rating p {
-    padding:10px 5px;
     text-align:left;
-}
-.score {
-	padding-top:10px;
 }
 .score .text {
 	color:#757575;

@@ -16,6 +16,7 @@ import net.librec.data.model.TextDataModel;
 import net.librec.eval.RecommenderEvaluator;
 import net.librec.eval.rating.RMSEEvaluator;
 import net.librec.filter.GenericRecommendedFilter;
+import net.librec.recommender.AbstractRecommender;
 import net.librec.recommender.Recommender;
 import net.librec.recommender.RecommenderContext;
 import net.librec.recommender.cf.ItemKNNRecommender;
@@ -31,9 +32,7 @@ public class RecommendMgr {
 	
     private static RecommendMgr instance;
     
-    private Recommender itemRecommender;
-    private Recommender userRecommender;
-    private Recommender ratingRecommender;
+    private AbstractRecommender itemRecommender;
     private TextDataModel dataModel;
     
     private List<Movie> releaseTopList;
@@ -78,7 +77,7 @@ public class RecommendMgr {
         buildRecommender(itemRecommender, conf);
         
         // build user recommender
-        LOG.info("build user recommender");
+        /*LOG.info("build user recommender");
         conf.set("rec.recommender.similarity.key" ,"user");
         conf.set("rec.neighbors.knn.number", "50");
         userRecommender = new UserKNNRecommender();
@@ -87,7 +86,7 @@ public class RecommendMgr {
         // build rating recommender
         LOG.info("build rating recommender");
         ratingRecommender = new PMFRecommender();
-        buildRecommender(ratingRecommender, conf);
+        buildRecommender(ratingRecommender, conf);*/
 	}
 	
 	public void sortMovies() {
@@ -187,20 +186,23 @@ public class RecommendMgr {
 	}
 	
 	public Double predictUserItemRating(String user_id, String item_id) {
-        // filter the recommended result
-        List<RecommendedItem> recommendedItemList = ratingRecommender.getRecommendedList();
-        for (RecommendedItem item:recommendedItemList) {
-        	if (item.getUserId().equals(user_id) && item.getItemId().equals(item_id)) {
-        		return item.getValue();
-        	}
-        }
-        
-        return 0.0;
+		try {
+			int userIdx = itemRecommender.userMappingData.get(user_id);
+			int itemIdx = itemRecommender.itemMappingData.get(item_id);
+			return ((ItemKNNRecommender) itemRecommender).predict(userIdx, itemIdx);
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (LibrecException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0.0;
 	}
 	
 	public List<Movie> getFilterUserList(String user_id, String item_id) {
         // filter the recommended result
-        List<RecommendedItem> recommendedItemList = userRecommender.getRecommendedList();
+        List<RecommendedItem> recommendedItemList = itemRecommender.getRecommendedList();
         GenericRecommendedFilter filter = new GenericRecommendedFilter();
         List<String> userIdList = new ArrayList<>();
         if (user_id != null) {
