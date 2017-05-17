@@ -7,12 +7,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hamcrest.core.IsInstanceOf;
 
-import javafx.util.Pair;
 import manage.RecommendMgr;
 import models.*;
 import net.librec.common.LibrecException;
@@ -169,7 +169,7 @@ public class Application extends Controller {
         LOG.info("build rating recommender");
     	Long runtime = RecommendMgr.getInstance().buildRecommender(recommender, conf);
     	
-    	List<Pair<String, String>> algorithms = RecommendMgr.getInstance().getRecommenderAlgorithms();
+    	List<Entry<String, String>> algorithms = RecommendMgr.getInstance().getRecommenderAlgorithms();
     	List<Double> ratings = new ArrayList<>();
     	List<Double> predict_ratings = new ArrayList<>();
     	// show recommended movie list

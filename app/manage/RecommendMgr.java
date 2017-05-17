@@ -1,18 +1,14 @@
 package manage;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import common.Util;
-import javafx.animation.KeyValue;
-import javafx.util.Pair;
 import models.*;
 import net.librec.common.LibrecException;
 import net.librec.conf.Configuration;
@@ -37,7 +33,7 @@ public class RecommendMgr {
 	
     private static RecommendMgr instance;
     
-    private AbstractRecommender itemRecommender;
+    private Recommender itemRecommender;
     private TextDataModel dataModel;
     
     private List<Movie> releaseTopList;
@@ -181,7 +177,7 @@ public class RecommendMgr {
         return getFilterItemList(itemRecommender, user_id, limit);
 	}
 	
-	public List<Movie> getFilterItemList(AbstractRecommender recommender, String user_id, int limit) {
+	public List<Movie> getFilterItemList(Recommender recommender, String user_id, int limit) {
         // filter the recommended result
         List<RecommendedItem> recommendedItemList = recommender.getRecommendedList();
         GenericRecommendedFilter filter = new GenericRecommendedFilter();
@@ -204,8 +200,8 @@ public class RecommendMgr {
 	
 	public Double predictUserItemRating(String user_id, String item_id) {
 		try {
-			int userIdx = itemRecommender.userMappingData.get(user_id);
-			int itemIdx = itemRecommender.itemMappingData.get(item_id);
+			int userIdx = ((ItemKNNRecommender) itemRecommender).userMappingData.get(user_id);
+			int itemIdx = ((ItemKNNRecommender) itemRecommender).itemMappingData.get(item_id);
 			return ((ItemKNNRecommender) itemRecommender).predict(userIdx, itemIdx);
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
@@ -278,22 +274,23 @@ public class RecommendMgr {
     	return movies;
 	}
 	
-	public List<Pair<String, String>> getRecommenderAlgorithms() {
+	public List<Entry<String, String>> getRecommenderAlgorithms() throws ClassNotFoundException {
 		String packageName = "net.librec.recommender";
-		List<Pair<String, String>> algorithms = new ArrayList<>();
+		List<Entry<String, String>> algorithms = new ArrayList<>();
         List<String> classNames = Util.getClassName(packageName, true);
         if (classNames != null) {
         	for (String className:classNames) {
         		if (className.indexOf("$") != -1) continue;
+        		Class<?> clazz = Class.forName(className);
+        		if (Modifier.isAbstract(clazz.getModifiers())) continue;
         		int index = className.lastIndexOf(".");
         		String algoName = className.substring(index + 1);
-        		if (!algoName.equals("AbstractRecommender") && !algoName.equals("package-info")) {
-        			algorithms.add(new Pair<String, String>(algoName, className));
-        		}
+        		if (algoName.equals("package-info")) continue;
+        		algorithms.add(new AbstractMap.SimpleEntry(algoName, className));
         	}
         }
-        Collections.sort(algorithms, new Comparator<Pair<String, String>>() {
-            public int compare(Pair<String, String> p1, Pair<String, String> p2) {
+        Collections.sort(algorithms, new Comparator<Entry<String, String>>() {
+            public int compare(Entry<String, String> p1, Entry<String, String> p2) {
                 return p1.getKey().compareTo(p2.getKey());
             }
         });
