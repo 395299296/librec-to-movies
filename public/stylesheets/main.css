@@ -551,11 +551,18 @@ body {
     padding-left:5px
 }
 .test .select {
-    padding-top:10px;
+    padding-top:15px;
     width:100%;   
 }
-#select_algo {
+.test .select select {
+    width:100%;   
+}
+.test .select input {
     width:100%;
+    text-indent:8px;
+}
+.test .select p {
+    line-height: 30px;
 }
 .test .list {
     padding-top:10px;

@@ -155,7 +155,7 @@ public class Application extends Controller {
     /*
      * test recommendation algorithms.
      */
-    public static void test(String className, Long movie_id, Double new_rating) throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, LibrecException {
+    public static void test(String className, Long movie_id, Double new_rating, Integer itemNum) throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, LibrecException {
     	String user_id = session.get("user_id");
     	if (user_id == null) {
     		user_id = "1";
@@ -179,6 +179,9 @@ public class Application extends Controller {
 	    	MovieEx movie = (MovieEx) MovieEx.getMovie(movie_id);
 	    	movie.calcAvgRating();
     	}
+    	if (itemNum == null) {
+    		itemNum = 5;
+    	}
     	
     	Class<?> clazz = Class.forName(className);
     	Constructor constructor = clazz.getConstructor();
@@ -192,18 +195,13 @@ public class Application extends Controller {
     	List<Double> ratings = new ArrayList<>();
     	List<Double> predict_ratings = new ArrayList<>();
     	// show recommended movie list
-    	List<Movie> recommend_list = RecommendMgr.getInstance().getFilterItemList(recommender, user_id, Integer.MAX_VALUE, predict_ratings);
-    	// sort by movie_id
-		Collections.sort(recommend_list, new Comparator<Movie>() {
-            public int compare(Movie m1, Movie m2) {
-                return m1.movie_id.compareTo(m2.movie_id);
-            }
-        });
+    	List<Movie> recommend_list = RecommendMgr.getInstance().getFilterItemList(recommender, user_id, itemNum, predict_ratings);
+    	// show real rating
     	for (Movie movie:recommend_list) {
     		ratings.add(((MovieEx)movie).getUserRating(Long.parseLong(user_id)));
     	}
     	
-        render("@test", algorithms, className, runtime, recommend_list, ratings, predict_ratings);
+        render("@test", algorithms, className, runtime, recommend_list, ratings, predict_ratings, itemNum);
     }
 
 }
