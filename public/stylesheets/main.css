@@ -550,18 +550,18 @@ body {
     border-bottom:3px solid #000;
     padding-left:5px
 }
-.test .select {
+.test .select1 {
     padding-top:15px;
     width:100%;   
 }
-.test .select select {
+.test .select1 select {
     width:100%;   
 }
-.test .select input {
+.test .select1 input {
     width:100%;
     text-indent:8px;
 }
-.test .select p {
+.test .select1 p {
     line-height: 30px;
 }
 .test .list {
@@ -577,11 +577,11 @@ body {
     margin:0;
     padding-left:4%;
 }
-.test .right .select {
+.test .select2 {
     height:25px;
-    margin-top:-25px;
+    margin-top:-32px;
     padding-left:20%;
 }
-.test .right .select form{
+.test .select2 form{
     margin-top:-18px;
 }
