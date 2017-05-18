@@ -570,3 +570,11 @@ body {
     margin:0;
     padding-left:4%;
 }
+.test .right .select {
+    height:25px;
+    margin-top:-25px;
+    padding-left:20%;
+}
+.test .right .select form{
+    margin-top:-18px;
+}

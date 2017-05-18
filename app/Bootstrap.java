@@ -86,39 +86,11 @@ public class Bootstrap extends Job {
 		// load rating set
         start = System.currentTimeMillis();
 		TextDataModel dataModel = RecommendMgr.getInstance().getDataModel();
-		SparseMatrix preference = (SparseMatrix) dataModel.getTrainDataSet();
-		Table<Integer, Integer, Double> dataTable = preference.getDataTable();
-		BiMap<String, Integer> userIds = dataModel.getUserMappingData();
-		BiMap<String, Integer> itemIds = dataModel.getItemMappingData();
-		SparseMatrix dateTimeDataSet = (SparseMatrix) dataModel.getDatetimeDataSet();
-		Table<Integer, Integer, Double> dateTimeTable = dateTimeDataSet.getDataTable();
-		for (Map.Entry<String, Integer> userId : userIds.entrySet()) {
-			for (Map.Entry<String, Integer> itemId : itemIds.entrySet()) {
-				Object scValue = dataTable.get(userId.getValue(), itemId.getValue());
-				Object dtValue = dateTimeTable.get(userId.getValue(), itemId.getValue());
-				if (scValue != null && dtValue != null) {
-					Long user_id = Long.parseLong(userId.getKey());
-					Long movie_id = Long.parseLong(itemId.getKey());
-					Double score = (Double)scValue;
-					Double datetime = (Double)dtValue;
-					Rating rating = new Rating(user_id, movie_id, score);
-					User user = User.findUser(user_id);
-					if (user == null) continue;
-					MovieEx movie = (MovieEx) MovieEx.findMovie(movie_id);
-					if (movie == null) continue;
-					try {
-						user.addMovie(movie, score, datetime);
-						movie.addUser(user, score, datetime);
-					} catch (Exception e) {
-						// TODO: handle exception
-						e.printStackTrace();
-						throw new LibrecException("load rating set error");
-					}
-					//rating.save();
-					Rating.allRatings.add(rating);
-				}
-			}
-		}
+		SparseMatrix trainMatrix = (SparseMatrix) dataModel.getTrainDataSet();
+		SparseMatrix testMatrix = (SparseMatrix) dataModel.getTestDataSet();
+		RecommendMgr.getInstance().initData(trainMatrix);
+		RecommendMgr.getInstance().initData(testMatrix);
+		
 		for (Movie movie:Movie.allMovies) {
 			((MovieEx) movie).calcAvgRating();
 		}

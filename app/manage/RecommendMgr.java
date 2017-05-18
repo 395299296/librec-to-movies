@@ -2,11 +2,15 @@ package manage;
 
 import java.io.File;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.Table;
 
 import common.Util;
 import models.*;
@@ -17,6 +21,7 @@ import net.librec.data.model.TextDataModel;
 import net.librec.eval.RecommenderEvaluator;
 import net.librec.eval.rating.RMSEEvaluator;
 import net.librec.filter.GenericRecommendedFilter;
+import net.librec.math.structure.SparseMatrix;
 import net.librec.recommender.AbstractRecommender;
 import net.librec.recommender.Recommender;
 import net.librec.recommender.RecommenderContext;
@@ -92,6 +97,41 @@ public class RecommendMgr {
         conf.set("data.input.path", "u.data");
         conf.set("data.column.format", "UIRT");
         return conf;
+	}
+	
+	public void initData(SparseMatrix dataMatrix) throws LibrecException {
+		Table<Integer, Integer, Double> dataTable = dataMatrix.getDataTable();
+		BiMap<String, Integer> userIds = dataModel.getUserMappingData();
+		BiMap<String, Integer> itemIds = dataModel.getItemMappingData();
+		SparseMatrix dateTimeDataSet = (SparseMatrix) dataModel.getDatetimeDataSet();
+		Table<Integer, Integer, Double> dateTimeTable = dateTimeDataSet.getDataTable();
+		for (Map.Entry<String, Integer> userId : userIds.entrySet()) {
+			for (Map.Entry<String, Integer> itemId : itemIds.entrySet()) {
+				Object scValue = dataTable.get(userId.getValue(), itemId.getValue());
+				Object dtValue = dateTimeTable.get(userId.getValue(), itemId.getValue());
+				if (scValue != null && dtValue != null) {
+					Long user_id = Long.parseLong(userId.getKey());
+					Long movie_id = Long.parseLong(itemId.getKey());
+					Double score = (Double)scValue;
+					Double datetime = (Double)dtValue;
+					Rating rating = new Rating(user_id, movie_id, score);
+					User user = User.findUser(user_id);
+					if (user == null) continue;
+					MovieEx movie = (MovieEx) MovieEx.findMovie(movie_id);
+					if (movie == null) continue;
+					try {
+						user.addMovie(movie, score, datetime);
+						movie.addUser(user, score, datetime);
+					} catch (Exception e) {
+						// TODO: handle exception
+						e.printStackTrace();
+						throw new LibrecException("load rating set error");
+					}
+					//rating.save();
+					Rating.allRatings.add(rating);
+				}
+			}
+		}
 	}
 	
 	public void sortMovies() {
@@ -174,10 +214,11 @@ public class RecommendMgr {
 	
 	public List<Movie> getFilterItemList(String user_id, int limit) {
         // filter the recommended result
-        return getFilterItemList(itemRecommender, user_id, limit);
+		List<Double> ratings = new ArrayList<>();
+        return getFilterItemList(itemRecommender, user_id, limit, ratings);
 	}
 	
-	public List<Movie> getFilterItemList(Recommender recommender, String user_id, int limit) {
+	public List<Movie> getFilterItemList(Recommender recommender, String user_id, int limit, List<Double> ratings) {
         // filter the recommended result
         List<RecommendedItem> recommendedItemList = recommender.getRecommendedList();
         GenericRecommendedFilter filter = new GenericRecommendedFilter();
@@ -193,6 +234,8 @@ public class RecommendMgr {
         	Long movie_id = Long.parseLong(item.getItemId());
         	Movie movie = Movie.getMovie(movie_id);
         	movies.add(movie);
+        	BigDecimal bg = new BigDecimal(item.getValue());
+        	ratings.add(bg.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue());
         }
         
         return movies;
@@ -283,6 +326,10 @@ public class RecommendMgr {
         		if (className.indexOf("$") != -1) continue;
         		Class<?> clazz = Class.forName(className);
         		if (Modifier.isAbstract(clazz.getModifiers())) continue;
+        		Class<?> father = Class.forName("net.librec.recommender.AbstractRecommender");
+        		if (!father.isAssignableFrom(clazz)) continue;
+        		Class<?> social = Class.forName("net.librec.recommender.SocialRecommender");
+        		if (social.isAssignableFrom(clazz)) continue;
         		int index = className.lastIndexOf(".");
         		String algoName = className.substring(index + 1);
         		if (algoName.equals("package-info")) continue;
@@ -316,8 +363,23 @@ public class RecommendMgr {
 		case "FISMrmseRecommender":
 			conf.set("rec.fismrmse.rho", "1");
 			break;
-		case "FactorizationMachineRecommender":
-			
+		case "FMALSRecommender":
+			conf.set("rec.iterator.maximum", "100");
+			break;
+		case "FMSGDRecommender":
+			conf.set("rec.iterator.maximum", "100");
+			break;
+		case "GPLSARecommender":
+			conf.set("rec.recommender.smoothWeight", "2");
+			break;
+		case "HybridRecommender":
+			conf.set("rec.hybrid.lambda", "0.1");
+			break;
+		case "PersonalityDiagnosisRecommender":
+			conf.set("rec.PersonalityDiagnosis.sigma", "2.0");
+			break;
+		case "SLIMRecommender":
+			conf.set("rec.iterator.maximum", "40");
 			break;
 		default:
 			break;

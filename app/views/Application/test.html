@@ -40,11 +40,35 @@
                         </li>
                         <li>
                             <i>Your Rating:</i>
-                            <a>${ratings[count]}</a>
+                            #{if ratings[count]!=0}
+                                <a>${ratings[count]}</a>
+                            #{/if}
+                            #{else}
+                                <a></a>
+                            #{/else}
                         </li>
                         <li>
                             <i>Prediction Rating:</i>
                             <a>${predict_ratings[count]}</a>
+                        </li>
+                        <li>
+                            <i>Add New Rating:</i>
+                            <div class="select">
+                                <form method="post" action="/test">
+                                    <select id="select_rating" name="new_rating" onchange="submit();">
+                                        #{list 1..5, as:'i'}
+                                        #{if ratings[count]==i}
+                                            <option value="${i}" selected>${i}</option>
+                                        #{/if}
+                                        #{else}
+                                            <option value="${i}">${i}</option>
+                                        #{/else}
+                                        #{/list}
+                                    </select>
+                                    <input class="text" type="hidden" name="movie_id" value="${movie.movie_id}">
+                                    <input class="text" type="hidden" name="className" value="${className}">
+                                </form>
+                            </div>
                         </li>
                     </ul>
                 </div>

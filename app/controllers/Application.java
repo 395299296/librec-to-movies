@@ -13,10 +13,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hamcrest.core.IsInstanceOf;
 
+import com.google.common.collect.BiMap;
+
 import manage.RecommendMgr;
 import models.*;
 import net.librec.common.LibrecException;
 import net.librec.conf.Configuration;
+import net.librec.data.model.TextDataModel;
+import net.librec.math.structure.SparseMatrix;
 import net.librec.recommender.AbstractRecommender;
 import net.librec.recommender.Recommender;
 import net.librec.recommender.TensorRecommender;
@@ -151,7 +155,7 @@ public class Application extends Controller {
     /*
      * test recommendation algorithms.
      */
-    public static void test(String className) throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, LibrecException {
+    public static void test(String className, Long movie_id, Double new_rating) throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, LibrecException {
     	String user_id = session.get("user_id");
     	if (user_id == null) {
     		user_id = "1";
@@ -159,6 +163,21 @@ public class Application extends Controller {
     	}
     	if (className == null || className.isEmpty()) {
     		className = "net.librec.recommender.cf.rating.PMFRecommender";
+    	}
+    	// add new rating
+    	if (movie_id != null && new_rating != null) {
+    		TextDataModel dataModel = RecommendMgr.getInstance().getDataModel();
+    		SparseMatrix testMatrix = (SparseMatrix) dataModel.getTestDataSet();
+    		BiMap<String, Integer> userIds = dataModel.getUserMappingData();
+    		BiMap<String, Integer> itemIds = dataModel.getItemMappingData();
+    		int userIdx = userIds.get(user_id);
+    		int itemIdx = itemIds.get(movie_id.toString());
+    		testMatrix.set(userIdx, itemIdx, new_rating);
+    		User current_user = User.getUser(Long.parseLong(user_id));
+	    	Long datetime = System.currentTimeMillis();
+	    	current_user.setUserRating(movie_id, new_rating, (double)datetime);
+	    	MovieEx movie = (MovieEx) MovieEx.getMovie(movie_id);
+	    	movie.calcAvgRating();
     	}
     	
     	Class<?> clazz = Class.forName(className);
@@ -173,7 +192,7 @@ public class Application extends Controller {
     	List<Double> ratings = new ArrayList<>();
     	List<Double> predict_ratings = new ArrayList<>();
     	// show recommended movie list
-    	List<Movie> recommend_list = RecommendMgr.getInstance().getFilterItemList(user_id, Integer.MAX_VALUE);
+    	List<Movie> recommend_list = RecommendMgr.getInstance().getFilterItemList(recommender, user_id, Integer.MAX_VALUE, predict_ratings);
     	// sort by movie_id
 		Collections.sort(recommend_list, new Comparator<Movie>() {
             public int compare(Movie m1, Movie m2) {
@@ -181,17 +200,6 @@ public class Application extends Controller {
             }
         });
     	for (Movie movie:recommend_list) {
-    		String movie_id = movie.movie_id.toString();
-    		/*if (recommender instanceof AbstractRecommender)
-    			AbstractRecommender newRecommender = (AbstractRecommender) recommender;
-    		else
-    			TensorRecommender newRecommender = (TensorRecommender) recommender;
-    		int userIdx = newRecommender.userMappingData.get(user_id);
-    		int itemIdx = newRecommender.itemMappingData.get(movie_id);*/
-    		Double rating = 0.0; //recommender.predict(userIdx, itemIdx);
-    		BigDecimal bg = new BigDecimal(rating);
-    		rating = bg.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
-    		predict_ratings.add(rating);
     		ratings.add(((MovieEx)movie).getUserRating(Long.parseLong(user_id)));
     	}
     	
