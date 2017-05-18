@@ -131,19 +131,19 @@ public class Util {
     }
     
     /** 
-     * 获取某包下（包括该包的所有子包）所有类 
-     * @param packageName 包名 
-     * @return 类的完整名称 
+     * Obtain all classes under a package (including all sub packages of the package)
+     * @param packageName  the package name
+     * @return The full name of the class
      */  
     public static List<String> getClassName(String packageName) {  
         return getClassName(packageName, true);  
     }  
   
     /** 
-     * 获取某包下所有类 
-     * @param packageName 包名 
-     * @param childPackage 是否遍历子包 
-     * @return 类的完整名称 
+     * Get all classes under a package
+     * @param packageName  the package name
+     * @param childPackage  whether to traverse the sub package 
+     * @return The full name of the class
      */  
     public static List<String> getClassName(String packageName, boolean childPackage) {  
         List<String> fileNames = null;  
@@ -164,11 +164,11 @@ public class Util {
     }  
   
     /** 
-     * 从项目文件获取某包下所有类 
-     * @param filePath 文件路径 
-     * @param className 类名集合 
-     * @param childPackage 是否遍历子包 
-     * @return 类的完整名称 
+     * Obtain all classes from a project file under a package
+     * @param filePath  the file path 
+     * @param className  the class name collection 
+     * @param childPackage  whether to traverse the sub package
+     * @return The full name of the class 
      */  
     private static List<String> getClassNameByFile(String filePath, List<String> className, boolean childPackage) {  
         List<String> myClassName = new ArrayList<String>();  
@@ -193,10 +193,10 @@ public class Util {
     }  
   
     /** 
-     * 从jar获取某包下所有类 
-     * @param jarPath jar文件路径 
-     * @param childPackage 是否遍历子包 
-     * @return 类的完整名称 
+     * Get all classes from jar under a package
+     * @param jarPath  the jar file path
+     * @param childPackage  whether to traverse the sub package
+     * @return the full name of the class 
      */  
     private static List<String> getClassNameByJar(String jarPath, boolean childPackage) {  
         List<String> myClassName = new ArrayList<String>();  
@@ -238,11 +238,11 @@ public class Util {
     }  
   
     /** 
-     * 从所有jar中搜索该包，并获取该包下所有类 
-     * @param urls URL集合 
-     * @param packagePath 包路径 
-     * @param childPackage 是否遍历子包 
-     * @return 类的完整名称 
+     * Search the package from all jars and get all the classes under that package
+     * @param urls  the URL assembly 
+     * @param packagePath  the package path 
+     * @param childPackage  whether to traverse the sub package 
+     * @return the full name of the class
      */  
     private static List<String> getClassNameByJars(URL[] urls, String packagePath, boolean childPackage) {  
         List<String> myClassName = new ArrayList<String>();  
@@ -250,7 +250,7 @@ public class Util {
             for (int i = 0; i < urls.length; i++) {  
                 URL url = urls[i];  
                 String urlPath = url.getPath();  
-                // 不必搜索classes文件夹  
+                // do not have to search for classes folders
                 if (urlPath.endsWith("classes/")) {  
                     continue;  
                 }  
