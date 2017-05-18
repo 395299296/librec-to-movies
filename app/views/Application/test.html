@@ -52,7 +52,12 @@
                             <a>${predict_ratings[count]}</a>
                         </li>
                         <li>
-                            <i>Add New Rating:</i>
+                            #{if ratings[count]!=0}
+                            <i>Update your rating:</i>
+                            #{/if}
+                            #{else}
+                            <i>Add a rating:</i>
+                            #{/else}
                             <div class="select">
                                 <form method="post" action="/test">
                                     <select id="select_rating" name="new_rating" onchange="submit();">
