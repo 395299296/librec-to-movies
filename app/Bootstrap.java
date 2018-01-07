@@ -90,7 +90,9 @@ public class Bootstrap extends Job {
 		SparseMatrix testMatrix = (SparseMatrix) dataModel.getTestDataSet();
 		RecommendMgr.getInstance().initData(trainMatrix);
 		RecommendMgr.getInstance().initData(testMatrix);
-		
+		end = System.currentTimeMillis();
+        LOG.info( "Init data matrix costs " + (end - start) + " milliseconds" );
+        start = System.currentTimeMillis();
 		for (Movie movie:Movie.allMovies) {
 			((MovieEx) movie).calcAvgRating();
 		}
